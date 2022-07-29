@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">ToDo List</string>
+    <string name="add">Add</string>
+    <string name="low_importance">Low importance</string>
+    <string name="normal_importance">Normal importance</string>
+    <string name="high_importance">High importance</string>
 </resources>
