@@ -6,7 +6,14 @@ class TodoItemsRepository {
 
     private val _todoItems = mutableListOf<TodoItem>(
         TodoItem("1", "text1", Importance.NORMAL, 0L, true, Date().time, 0L),
-        TodoItem("2", "text2", Importance.NORMAL, 0L, false, Date().time, 0L),
+        TodoItem("2",
+            "hey text2text2 text2text2 text2text2 text2text2 text2text2 text2text2 text2text2" +
+                    " text2text2 text2text2 text2text2 text2text2 text2text2 text2text2 text2text2" +
+                    " text2text2 text2text2 text2text2 text2text2 text2text2 text2text2 text2text2" +
+                    " text2text2 text2text2 text2text2 text2text2 text2text2 text2text2 text2text2" +
+                    " text2text2 text2text2 text2text2 text2text2 text2text2 text2text2 text2text2" +
+                    " text2text2 text2text2 text2text2 text2text2 text2text2 text2text2 text2text2",
+            Importance.NORMAL, 0L, false, Date().time, 0L),
         TodoItem("3", "text3", Importance.LOW, 0L, true, Date().time, 0L),
         TodoItem("4", "text4", Importance.LOW, 0L, true, Date().time, 0L),
         TodoItem("5", "text5", Importance.HIGH, 0L, true, Date().time, 0L),
