@@ -8,7 +8,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coriolang.todolist.R
 import com.coriolang.todolist.databinding.FragmentTodoListBinding
+import com.coriolang.todolist.model.Importance
+import com.coriolang.todolist.model.TodoItem
 import com.coriolang.todolist.model.TodoItemsRepository
+import java.util.*
 
 class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
 
@@ -33,6 +36,27 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
         binding.recyclerViewTodo
             .layoutManager = LinearLayoutManager(context)
         binding.recyclerViewTodo.adapter = TodoItemAdapter(repository.todoItems)
+
+        binding.buttonAddItem.setOnClickListener {
+            val id = (repository.todoItems.size + 1).toString()
+            val text = "text$id"
+            val importance = Importance.LOW
+            val idCompleted = true
+
+            val todoItem = TodoItem(
+                id,
+                text,
+                importance,
+                0L,
+                idCompleted,
+                Date().time,
+                0L
+            )
+
+            repository.addItem(todoItem)
+            binding.recyclerViewTodo.adapter
+                ?.notifyItemInserted(repository.todoItems.size - 1)
+        }
     }
 
     override fun onDestroyView() {
