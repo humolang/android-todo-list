@@ -33,9 +33,13 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.recyclerViewTodo
-            .layoutManager = LinearLayoutManager(context)
-        binding.recyclerViewTodo.adapter = TodoItemAdapter(repository.todoItems)
+        val recyclerView = binding.recyclerViewTodo
+        val adapter = TodoListAdapter()
+
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = adapter
+
+        adapter.submitList(repository.todoItems)
 
         binding.buttonAddItem.setOnClickListener {
             val id = (repository.todoItems.size + 1).toString()
@@ -54,8 +58,7 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
             )
 
             repository.addItem(todoItem)
-            binding.recyclerViewTodo.adapter
-                ?.notifyItemInserted(repository.todoItems.size - 1)
+            adapter.notifyItemInserted(repository.todoItems.size - 1)
         }
     }
 

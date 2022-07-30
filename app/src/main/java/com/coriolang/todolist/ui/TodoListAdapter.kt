@@ -1,6 +1,5 @@
 package com.coriolang.todolist.ui
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -45,7 +44,6 @@ class TodoListAdapter :
 
     override fun onBindViewHolder(holder: TodoItemViewHolder, position: Int) {
         holder.bind(getItem(position))
-        Log.d("BIND", "position = $position")
     }
 
     companion object {
