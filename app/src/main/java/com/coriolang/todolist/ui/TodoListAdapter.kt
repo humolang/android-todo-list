@@ -11,7 +11,7 @@ import com.coriolang.todolist.databinding.ItemTodoBinding
 import com.coriolang.todolist.model.Importance
 import com.coriolang.todolist.model.TodoItem
 
-class TodoListAdapter(private val todoItems: List<TodoItem>) :
+class TodoListAdapter :
     ListAdapter<TodoItem, TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
 
     class TodoItemViewHolder(private var binding: ItemTodoBinding)
@@ -44,11 +44,9 @@ class TodoListAdapter(private val todoItems: List<TodoItem>) :
     }
 
     override fun onBindViewHolder(holder: TodoItemViewHolder, position: Int) {
-        holder.bind(todoItems[position])
+        holder.bind(getItem(position))
         Log.d("BIND", "position = $position")
     }
-
-    override fun getItemCount() = todoItems.size
 
     companion object {
         private val DiffCallback = object : DiffUtil.ItemCallback<TodoItem>() {
