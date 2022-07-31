@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coriolang.todolist.R
 import com.coriolang.todolist.databinding.FragmentTodoListBinding
-import com.coriolang.todolist.model.Importance
-import com.coriolang.todolist.model.TodoItem
-import com.coriolang.todolist.model.TodoItemsRepository
+import com.coriolang.todolist.data.Importance
+import com.coriolang.todolist.data.TodoItem
+import com.coriolang.todolist.data.TodoItemsRepository
 import java.util.*
 
 class TodoListFragment : Fragment(R.layout.fragment_todo_list) {

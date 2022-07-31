@@ -1,4 +1,4 @@
-package com.coriolang.todolist.model
+package com.coriolang.todolist.data
 
 enum class Importance {
 

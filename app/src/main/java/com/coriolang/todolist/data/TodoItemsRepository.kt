@@ -1,4 +1,4 @@
-package com.coriolang.todolist.model
+package com.coriolang.todolist.data
 
 import java.util.*
 
