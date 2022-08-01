@@ -6,7 +6,7 @@ import com.coriolang.todolist.data.todoItem.TodoItemDao
 
 class TodoListViewModelFactory(
     private val todoItemDao: TodoItemDao
-    ) : ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TodoListViewModel::class.java)) {

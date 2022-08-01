@@ -6,15 +6,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.coriolang.todolist.R
-import com.coriolang.todolist.databinding.ItemTodoBinding
 import com.coriolang.todolist.data.todoItem.Importance
 import com.coriolang.todolist.data.todoItem.TodoItem
+import com.coriolang.todolist.databinding.ItemTodoBinding
 
 class TodoListAdapter :
     ListAdapter<TodoItem, TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
 
-    class TodoItemViewHolder(private var binding: ItemTodoBinding)
-        : RecyclerView.ViewHolder(binding.root) {
+    class TodoItemViewHolder(private var binding: ItemTodoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(todoItem: TodoItem) {
             val imageImportance = when (todoItem.importance) {
