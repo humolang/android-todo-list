@@ -5,13 +5,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coriolang.todolist.R
+import com.coriolang.todolist.TodoApplication
 import com.coriolang.todolist.databinding.FragmentTodoListBinding
-import com.coriolang.todolist.data.Importance
-import com.coriolang.todolist.data.TodoItem
-import com.coriolang.todolist.data.TodoItemsRepository
-import java.util.*
+import com.coriolang.todolist.viewmodels.TodoListViewModel
+import com.coriolang.todolist.viewmodels.TodoListViewModelFactory
+import kotlinx.coroutines.launch
 
 class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
 
@@ -19,7 +21,11 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
     private val binding
         get() = _binding!!
 
-    private val repository = TodoItemsRepository()
+    private val viewModel: TodoListViewModel by activityViewModels {
+        TodoListViewModelFactory(
+            (activity?.application as TodoApplication).database.todoItemDao()
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,26 +45,14 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
 
-        adapter.submitList(repository.todoItems)
+        lifecycleScope.launch {
+            viewModel.allTodoItems().collect() {
+                adapter.submitList(it)
+            }
+        }
 
         binding.buttonAddItem.setOnClickListener {
-            val id = (repository.todoItems.size + 1).toString()
-            val text = "text$id"
-            val importance = Importance.LOW
-            val idCompleted = true
-
-            val todoItem = TodoItem(
-                id,
-                text,
-                importance,
-                0L,
-                idCompleted,
-                Date().time,
-                0L
-            )
-
-            repository.addItem(todoItem)
-            adapter.notifyItemInserted(repository.todoItems.size - 1)
+            viewModel.insertTodoItem()
         }
     }
 
