@@ -25,8 +25,7 @@ class TodoListAdapter :
 
             binding.apply {
                 checkBoxTodo.isChecked = todoItem.isCompleted
-                checkBoxTodo.text = todoItem.text
-
+                textViewTodo.text = todoItem.text
                 imageViewImportance.setImageResource(imageImportance)
             }
         }
