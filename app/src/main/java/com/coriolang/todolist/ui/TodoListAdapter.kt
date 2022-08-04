@@ -1,8 +1,8 @@
 package com.coriolang.todolist.ui
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -11,13 +11,17 @@ import com.coriolang.todolist.data.todoItem.Importance
 import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.databinding.ItemTodoBinding
 
-class TodoListAdapter :
-    ListAdapter<TodoItem, TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
+class TodoListAdapter(
+    private val onCheckboxClicked: (TodoItem) -> Unit,
+    private val onTodoItemClicked: (Int) -> Unit
+) : ListAdapter<TodoItem, TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
 
     class TodoItemViewHolder(
-        private val parent: ViewGroup,
-        private var binding: ItemTodoBinding
-        ) : RecyclerView.ViewHolder(binding.root) {
+        private val context: Context,
+        private var _binding: ItemTodoBinding
+        ) : RecyclerView.ViewHolder(_binding.root) {
+
+        val binding get() = _binding
 
         fun bind(todoItem: TodoItem) {
             val imageImportance = when (todoItem.importance) {
@@ -31,34 +35,41 @@ class TodoListAdapter :
                 Importance.HIGH -> R.string.high_importance
             }
 
-            binding.apply {
+            _binding.apply {
                 checkBoxTodo.isChecked = todoItem.isCompleted
                 textViewTodo.text = todoItem.text
                 imageViewImportance.setImageResource(imageImportance)
-                imageViewImportance.contentDescription = parent.context
-                    .getString(contentDescription)
-            }
-
-            binding.todoItemContainer.setOnClickListener {
-                val action = TodoListFragmentDirections
-                    .actionTodoListFragmentToTodoEditFragment(todoItem.id)
-                parent.findNavController().navigate(action)
+                imageViewImportance.contentDescription = context.getString(contentDescription)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoItemViewHolder {
-        val binding = ItemTodoBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
+        return TodoItemViewHolder(
+            parent.context,
+            ItemTodoBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
         )
-
-        return TodoItemViewHolder(parent, binding)
     }
 
     override fun onBindViewHolder(holder: TodoItemViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val todoItem = getItem(position)
+
+        holder.binding.checkBoxTodo.setOnCheckedChangeListener { _, isChecked ->
+            val updatedTodoItem = todoItem.copy(
+                isCompleted = isChecked,
+                modificationDate = System.currentTimeMillis()
+            )
+            onCheckboxClicked(updatedTodoItem)
+        }
+        holder.itemView.setOnClickListener {
+            onTodoItemClicked(todoItem.id)
+        }
+
+        holder.bind(todoItem)
     }
 
     companion object {

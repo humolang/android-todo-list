@@ -5,28 +5,53 @@ import androidx.lifecycle.viewModelScope
 import com.coriolang.todolist.data.todoItem.Importance
 import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.data.todoItem.TodoItemDao
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
 
-    fun insertTodoItem() {
+    fun insertTodoItem(text: String, importance: Importance) {
         val todoItem = TodoItem(
-            text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
-                    "sed do eiusmod tempor incididunt ut labore et dolore magna " +
-                    "aliqua. Ut enim ad minim veniam, quis nostrud exercitation " +
-                    "ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-                    "Duis aute irure dolor in reprehenderit in voluptate velit " +
-                    "esse cillum dolore eu fugiat nulla pariatur. Excepteur sint " +
-                    "occaecat cupidatat non proident, sunt in culpa qui officia " +
-                    "deserunt mollit anim id est laborum.",
-            importance = Importance.NORMAL,
+            text = text,
+            importance = importance,
             isCompleted = false
         )
 
         viewModelScope.launch {
             todoItemDao.insert(todoItem)
         }
+    }
+
+    fun insertTodoItem(text: String, importance: Importance, deadlineDate: Long) {
+        val todoItem = TodoItem(
+            text = text,
+            importance = importance,
+            isCompleted = false,
+            deadlineDate = deadlineDate
+        )
+
+        viewModelScope.launch {
+            todoItemDao.insert(todoItem)
+        }
+    }
+
+    fun updateTodoItem(todoItem: TodoItem) {
+        viewModelScope.launch {
+            todoItemDao.update(todoItem)
+        }
+    }
+
+    fun deleteTodoItem(todoItem: TodoItem) {
+        viewModelScope.launch {
+            todoItemDao.delete(todoItem)
+        }
+    }
+
+    suspend fun findTodoItemById(id: Int): TodoItem {
+        return viewModelScope.async {
+            todoItemDao.findById(id)
+        }.await()
     }
 
     fun allTodoItems(): Flow<List<TodoItem>> = todoItemDao.findAll()

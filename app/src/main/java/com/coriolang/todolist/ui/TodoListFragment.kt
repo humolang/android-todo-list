@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coriolang.todolist.R
 import com.coriolang.todolist.TodoApplication
+import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.databinding.FragmentTodoListBinding
 import com.coriolang.todolist.viewmodels.TodoListViewModel
 import com.coriolang.todolist.viewmodels.TodoListViewModelFactory
@@ -40,8 +41,17 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val onCheckboxClicked = { todoItem: TodoItem ->
+            viewModel.updateTodoItem(todoItem)
+        }
+        val onTodoItemClicked = { todoItemId: Int ->
+            val action = TodoListFragmentDirections
+                .actionTodoListFragmentToTodoEditFragment(todoItemId)
+            findNavController().navigate(action)
+        }
+
         val recyclerView = binding.recyclerViewTodo
-        val adapter = TodoListAdapter()
+        val adapter = TodoListAdapter(onCheckboxClicked, onTodoItemClicked)
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = adapter
