@@ -4,4 +4,12 @@
     <string name="low_importance">Low importance</string>
     <string name="normal_importance">Normal importance</string>
     <string name="high_importance">High importance</string>
+    <string name="add_a_task">Add a task</string>
+    <string name="select_deadline_date">Select deadline date</string>
+    <string name="task">Task</string>
+    <string name="task_text">Task text</string>
+    <string name="deadline_date">Deadline date</string>
+    <string name="select_date">Select date</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
 </resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/low_importance_option"
+        android:icon="@drawable/ic_low_importance"
+        android:title="@string/low_importance" />
+    <item
+        android:id="@+id/normal_importance_option"
+        android:icon="@drawable/ic_normal_importance"
+        android:title="@string/normal_importance" />
+    <item
+        android:id="@+id/high_importance_option"
+        android:icon="@drawable/ic_high_importance"
+        android:title="@string/high_importance" />
+</menu>

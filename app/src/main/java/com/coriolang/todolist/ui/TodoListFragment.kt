@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coriolang.todolist.R
 import com.coriolang.todolist.TodoApplication
@@ -51,8 +52,10 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
             }
         }
 
-        binding.buttonAddItem.setOnClickListener {
-            viewModel.insertTodoItem()
+        binding.fabAddItem.setOnClickListener {
+            val action = TodoListFragmentDirections
+                .actionTodoListFragmentToTodoEditFragment()
+            findNavController().navigate(action)
         }
     }
 

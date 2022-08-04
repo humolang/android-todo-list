@@ -2,6 +2,7 @@ package com.coriolang.todolist.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,8 +14,10 @@ import com.coriolang.todolist.databinding.ItemTodoBinding
 class TodoListAdapter :
     ListAdapter<TodoItem, TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
 
-    class TodoItemViewHolder(private var binding: ItemTodoBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    class TodoItemViewHolder(
+        private val parent: ViewGroup,
+        private var binding: ItemTodoBinding
+        ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(todoItem: TodoItem) {
             val imageImportance = when (todoItem.importance) {
@@ -22,11 +25,24 @@ class TodoListAdapter :
                 Importance.NORMAL -> R.drawable.ic_normal_importance
                 Importance.HIGH -> R.drawable.ic_high_importance
             }
+            val contentDescription = when (todoItem.importance) {
+                Importance.LOW -> R.string.low_importance
+                Importance.NORMAL -> R.string.normal_importance
+                Importance.HIGH -> R.string.high_importance
+            }
 
             binding.apply {
                 checkBoxTodo.isChecked = todoItem.isCompleted
                 textViewTodo.text = todoItem.text
                 imageViewImportance.setImageResource(imageImportance)
+                imageViewImportance.contentDescription = parent.context
+                    .getString(contentDescription)
+            }
+
+            binding.todoItemContainer.setOnClickListener {
+                val action = TodoListFragmentDirections
+                    .actionTodoListFragmentToTodoEditFragment(todoItem.id)
+                parent.findNavController().navigate(action)
             }
         }
     }
@@ -38,7 +54,7 @@ class TodoListAdapter :
             false
         )
 
-        return TodoItemViewHolder(binding)
+        return TodoItemViewHolder(parent, binding)
     }
 
     override fun onBindViewHolder(holder: TodoItemViewHolder, position: Int) {
