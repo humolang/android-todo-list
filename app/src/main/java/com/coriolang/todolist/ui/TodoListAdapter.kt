@@ -12,7 +12,7 @@ import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.databinding.ItemTodoBinding
 
 class TodoListAdapter(
-    private val onCheckboxClicked: (TodoItem) -> Unit,
+    private val onCheckboxClicked: (Int, Boolean) -> Unit,
     private val onTodoItemClicked: (Int) -> Unit
 ) : ListAdapter<TodoItem, TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
 
@@ -59,11 +59,7 @@ class TodoListAdapter(
         val todoItem = getItem(position)
 
         holder.binding.checkBoxTodo.setOnCheckedChangeListener { _, isChecked ->
-            val updatedTodoItem = todoItem.copy(
-                isCompleted = isChecked,
-                modificationDate = System.currentTimeMillis()
-            )
-            onCheckboxClicked(updatedTodoItem)
+            onCheckboxClicked(todoItem.id, isChecked)
         }
         holder.itemView.setOnClickListener {
             onTodoItemClicked(todoItem.id)

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -33,9 +34,6 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
     private var todoItemId: Int = 0
 
-    private var deadlineDate = 0L
-    private var importance: Importance = Importance.NORMAL
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -56,75 +54,69 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (todoItemId > 0) {
-            lifecycleScope.launch {
-                val todoItem = viewModel.findTodoItemById(todoItemId)
+        lifecycleScope.launch {
+            viewModel.todoItem.collect {
+                if (it.deadlineDate > 0L) {
+                    binding.switchDeadlineDate.isChecked = true
 
-                binding.apply {
-                    textFieldTodo.editText?.setText(todoItem.text)
+                    binding.buttonDeadlineDate.isEnabled = true
+                    binding.buttonDeadlineDate.text = DateUtils
+                        .formatDateTime(context, it.deadlineDate, DateUtils.FORMAT_SHOW_DATE)
+                } else {
+                    binding.switchDeadlineDate.isChecked = false
 
-                    if (todoItem.deadlineDate > 0L) {
-                        switchDeadlineDate.isChecked = true
-                        deadlineDate = todoItem.deadlineDate
-                        buttonDeadlineDate.text = DateUtils
-                            .formatDateTime(context, deadlineDate, DateUtils.FORMAT_SHOW_DATE)
-                    }
+                    binding.buttonDeadlineDate.isEnabled = false
+                    binding.buttonDeadlineDate.text = getString(R.string.select_date)
+                }
 
-                    importance = todoItem.importance
-                    buttonImportanceMenu.text = when (importance) {
-                        Importance.LOW -> getString(R.string.low_importance)
-                        Importance.NORMAL -> getString(R.string.normal_importance)
-                        Importance.HIGH -> getString(R.string.high_importance)
-                    }
-
-                    buttonDelete.visibility = View.VISIBLE
-                    buttonDelete.setOnClickListener {
-                        viewModel.deleteTodoItem(todoItem)
-
-                        val action = TodoEditFragmentDirections
-                            .actionTodoEditFragmentToTodoListFragment()
-                        findNavController().navigate(action)
-                    }
-
-                    buttonSave.setOnClickListener {
-                        val text = binding.textFieldTodo.editText?.text.toString()
-
-                        val updatedTodoItem = todoItem.copy(
-                            text = text,
-                            importance = importance,
-                            deadlineDate = deadlineDate,
-                            modificationDate = System.currentTimeMillis()
-                        )
-                        viewModel.updateTodoItem(updatedTodoItem)
-
-                        val action = TodoEditFragmentDirections
-                            .actionTodoEditFragmentToTodoListFragment()
-                        findNavController().navigate(action)
-                    }
+                binding.buttonImportanceMenu.text = when (it.importance) {
+                    Importance.LOW -> getString(R.string.low_importance)
+                    Importance.NORMAL -> getString(R.string.normal_importance)
+                    Importance.HIGH -> getString(R.string.high_importance)
                 }
             }
-        } else {
-            binding.buttonSave.setOnClickListener {
-                val text = binding.textFieldTodo.editText?.text.toString()
+        }
 
-                if (binding.switchDeadlineDate.isChecked) {
-                    viewModel.insertTodoItem(text, importance, deadlineDate)
-                } else {
-                    viewModel.insertTodoItem(text, importance)
-                }
+        if (todoItemId > 0) {
+            viewModel.findTodoItemById(todoItemId)
+
+            binding.textFieldTodo.editText
+                ?.setText(viewModel.todoItem.value.text)
+        } else {
+            viewModel.defaultTodoItem()
+        }
+
+        if (todoItemId > 0) {
+            binding.buttonDelete.setOnClickListener {
+                viewModel.deleteTodoItem()
 
                 val action = TodoEditFragmentDirections
                     .actionTodoEditFragmentToTodoListFragment()
                 findNavController().navigate(action)
             }
+        } else {
+            binding.buttonDelete.visibility = View.GONE
         }
 
-        binding.buttonDeadlineDate.isEnabled = binding.switchDeadlineDate.isChecked
+        binding.buttonSave.setOnClickListener {
+            val text = binding.textFieldTodo.editText?.text.toString()
+            viewModel.setTodoText(text)
+
+            if (todoItemId > 0) {
+                viewModel.updateTodoItem()
+            } else {
+                viewModel.insertTodoItem()
+            }
+
+            val action = TodoEditFragmentDirections
+                .actionTodoEditFragmentToTodoListFragment()
+            findNavController().navigate(action)
+        }
 
         binding.switchDeadlineDate.setOnCheckedChangeListener { _, isChecked ->
             binding.buttonDeadlineDate.isEnabled = isChecked
             if (!isChecked) {
-                deadlineDate = 0L
+                viewModel.setTodoDeadlineDate(0L)
             }
         }
 
@@ -135,9 +127,7 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
             .build()
 
         deadlineDatePicker.addOnPositiveButtonClickListener { selectedDate ->
-            deadlineDate = selectedDate
-            binding.buttonDeadlineDate.text = DateUtils
-                .formatDateTime(context, selectedDate, DateUtils.FORMAT_SHOW_DATE)
+            viewModel.setTodoDeadlineDate(selectedDate)
         }
 
         binding.buttonDeadlineDate.setOnClickListener {
@@ -151,12 +141,13 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
             importanceMenu.setForceShowIcon(true)
 
             importanceMenu.setOnMenuItemClickListener { menuItem ->
-                importance = when (menuItem.itemId) {
+                val importance = when (menuItem.itemId) {
                     R.id.low_importance_option -> Importance.LOW
                     R.id.normal_importance_option -> Importance.NORMAL
                     else -> Importance.HIGH
                 }
-                binding.buttonImportanceMenu.text = menuItem.title
+                viewModel.setTodoImportance(importance)
+
                 true
             }
 
