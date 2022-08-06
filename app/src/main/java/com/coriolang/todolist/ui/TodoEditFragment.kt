@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.R
 import com.coriolang.todolist.TodoApplication
 import com.coriolang.todolist.data.todoItem.Importance
+import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.databinding.FragmentTodoEditBinding
 import com.coriolang.todolist.viewmodels.TodoListViewModel
 import com.coriolang.todolist.viewmodels.TodoListViewModelFactory
@@ -21,11 +22,10 @@ import kotlinx.coroutines.launch
 
 class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
+    private var isNewItem: Boolean = true
     companion object {
-        private const val TODO_ITEM_ID = "todoItemId"
+        private const val IS_NEW_ITEM = "isNewItem"
     }
-
-    private var todoItemId: Int = 0
 
     private var _binding: FragmentTodoEditBinding? = null
     private val binding
@@ -41,7 +41,7 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            todoItemId = it.getInt(TODO_ITEM_ID)
+            isNewItem = it.getBoolean(IS_NEW_ITEM)
         }
     }
 
@@ -57,67 +57,8 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch {
-            viewModel.todoItem.collect {
-                val hasDeadline = it.deadlineDate > 0L
-
-                binding.switchDeadlineDate.isChecked = hasDeadline
-                binding.buttonDeadlineDate.isEnabled = hasDeadline
-
-                if (hasDeadline) {
-                    binding.buttonDeadlineDate.text = DateUtils
-                        .formatDateTime(context, it.deadlineDate, DateUtils.FORMAT_SHOW_DATE)
-                } else {
-                    binding.buttonDeadlineDate.text = getString(R.string.select_date)
-                }
-
-                binding.buttonImportanceMenu.text = when (it.importance) {
-                    Importance.LOW -> getString(R.string.low_importance)
-                    Importance.NORMAL -> getString(R.string.normal_importance)
-                    Importance.HIGH -> getString(R.string.high_importance)
-                }
-            }
-        }
-
-        if (todoItemId > 0) {
-            viewModel.findTodoItemById(todoItemId)
-
-            binding.textFieldTodo.editText
-                ?.setText(viewModel.todoItem.value.text)
-
-            binding.buttonDelete.setOnClickListener {
-                viewModel.deleteTodoItem()
-
-                val action = TodoEditFragmentDirections
-                    .actionTodoEditFragmentToTodoListFragment()
-                findNavController().navigate(action)
-            }
-        } else {
-            viewModel.defaultTodoItem()
-
-            binding.buttonDelete.visibility = View.GONE
-        }
-
-        binding.buttonSave.setOnClickListener {
-            val text = binding.textFieldTodo.editText?.text.toString()
-            viewModel.setTodoText(text)
-
-            if (todoItemId > 0) {
-                viewModel.updateTodoItem()
-            } else {
-                viewModel.insertTodoItem()
-            }
-
-            val action = TodoEditFragmentDirections
-                .actionTodoEditFragmentToTodoListFragment()
-            findNavController().navigate(action)
-        }
-
         binding.switchDeadlineDate.setOnCheckedChangeListener { _, isChecked ->
             binding.buttonDeadlineDate.isEnabled = isChecked
-            if (!isChecked) {
-                viewModel.setTodoDeadlineDate(0L)
-            }
         }
 
         val deadlineDatePicker = MaterialDatePicker.Builder
@@ -153,10 +94,79 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
             importanceMenu.show()
         }
+
+        binding.buttonSave.setOnClickListener {
+            val text = binding.textFieldTodo.editText?.text.toString()
+            viewModel.setTodoText(text)
+
+            if (!binding.switchDeadlineDate.isChecked) {
+                viewModel.setTodoDeadlineDate(0L)
+            }
+
+            if (isNewItem) {
+                viewModel.insertTodoItem()
+            } else {
+                viewModel.updateTodoItem()
+            }
+
+            navigateToList()
+        }
+
+        if (isNewItem) {
+            binding.buttonDelete.visibility = View.GONE
+        } else {
+            binding.buttonDelete.setOnClickListener {
+                viewModel.deleteTodoItem()
+                navigateToList()
+            }
+        }
+
+        updateFields(viewModel.todoItem.value)
+
+        lifecycleScope.launch {
+            viewModel.todoItem.collect {
+                updateFields(it)
+            }
+        }
+    }
+
+    override fun onStop() {
+        val text = binding.textFieldTodo.editText?.text.toString()
+        viewModel.setTodoText(text)
+
+        super.onStop()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun navigateToList() {
+        val action = TodoEditFragmentDirections
+            .actionTodoEditFragmentToTodoListFragment()
+        findNavController().navigate(action)
+    }
+
+    private fun updateFields(todoItem: TodoItem) {
+        binding.textFieldTodo.editText
+            ?.setText(todoItem.text)
+
+        val hasDeadline = todoItem.deadlineDate > 0L
+        binding.switchDeadlineDate.isChecked = hasDeadline
+        binding.buttonDeadlineDate.isEnabled = hasDeadline
+
+        if (hasDeadline) {
+            binding.buttonDeadlineDate.text = DateUtils
+                .formatDateTime(context, todoItem.deadlineDate, DateUtils.FORMAT_SHOW_DATE)
+        } else {
+            binding.buttonDeadlineDate.text = getString(R.string.select_date)
+        }
+
+        binding.buttonImportanceMenu.text = when (todoItem.importance) {
+            Importance.LOW -> getString(R.string.low_importance)
+            Importance.NORMAL -> getString(R.string.normal_importance)
+            Importance.HIGH -> getString(R.string.high_importance)
+        }
     }
 }

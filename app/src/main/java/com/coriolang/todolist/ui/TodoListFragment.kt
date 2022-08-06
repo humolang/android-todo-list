@@ -44,8 +44,10 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
             viewModel.setTodoIsCompleted(id, isCompleted)
         }
         val onTodoItemClicked = { id: Int ->
+            viewModel.findTodoItemById(id)
+
             val action = TodoListFragmentDirections
-                .actionTodoListFragmentToTodoEditFragment(id)
+                .actionTodoListFragmentToTodoEditFragment(isNewItem = false)
             findNavController().navigate(action)
         }
 
@@ -62,8 +64,10 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
         }
 
         binding.fabAddItem.setOnClickListener {
+            viewModel.defaultTodoItem()
+
             val action = TodoListFragmentDirections
-                .actionTodoListFragmentToTodoEditFragment()
+                .actionTodoListFragmentToTodoEditFragment(isNewItem = true)
             findNavController().navigate(action)
         }
     }
