@@ -19,7 +19,7 @@ class TodoListAdapter(
     class TodoItemViewHolder(
         private val context: Context,
         private var _binding: ItemTodoBinding
-        ) : RecyclerView.ViewHolder(_binding.root) {
+    ) : RecyclerView.ViewHolder(_binding.root) {
 
         val binding get() = _binding
 

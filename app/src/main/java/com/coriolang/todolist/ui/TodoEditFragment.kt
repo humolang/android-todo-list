@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -22,6 +21,12 @@ import kotlinx.coroutines.launch
 
 class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
+    companion object {
+        private const val TODO_ITEM_ID = "todoItemId"
+    }
+
+    private var todoItemId: Int = 0
+
     private var _binding: FragmentTodoEditBinding? = null
     private val binding
         get() = _binding!!
@@ -32,13 +37,11 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
         )
     }
 
-    private var todoItemId: Int = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            todoItemId = it.getInt("todoItemId")
+            todoItemId = it.getInt(TODO_ITEM_ID)
         }
     }
 
@@ -56,16 +59,15 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
         lifecycleScope.launch {
             viewModel.todoItem.collect {
-                if (it.deadlineDate > 0L) {
-                    binding.switchDeadlineDate.isChecked = true
+                val hasDeadline = it.deadlineDate > 0L
 
-                    binding.buttonDeadlineDate.isEnabled = true
+                binding.switchDeadlineDate.isChecked = hasDeadline
+                binding.buttonDeadlineDate.isEnabled = hasDeadline
+
+                if (hasDeadline) {
                     binding.buttonDeadlineDate.text = DateUtils
                         .formatDateTime(context, it.deadlineDate, DateUtils.FORMAT_SHOW_DATE)
                 } else {
-                    binding.switchDeadlineDate.isChecked = false
-
-                    binding.buttonDeadlineDate.isEnabled = false
                     binding.buttonDeadlineDate.text = getString(R.string.select_date)
                 }
 
@@ -82,11 +84,7 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
             binding.textFieldTodo.editText
                 ?.setText(viewModel.todoItem.value.text)
-        } else {
-            viewModel.defaultTodoItem()
-        }
 
-        if (todoItemId > 0) {
             binding.buttonDelete.setOnClickListener {
                 viewModel.deleteTodoItem()
 
@@ -95,6 +93,8 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
                 findNavController().navigate(action)
             }
         } else {
+            viewModel.defaultTodoItem()
+
             binding.buttonDelete.visibility = View.GONE
         }
 

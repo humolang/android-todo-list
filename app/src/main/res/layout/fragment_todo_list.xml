@@ -23,10 +23,10 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:clickable="true"
-        android:src="@drawable/ic_add_item"
         android:contentDescription="@string/add_a_task"
+        android:focusable="true"
+        android:src="@drawable/ic_add_item"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:focusable="true" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
