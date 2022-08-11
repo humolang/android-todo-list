@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_todoListFragment_to_todoEditFragment"
             app:destination="@id/todoEditFragment" />
+        <action
+            android:id="@+id/action_todoListFragment_to_todoLoginFragment"
+            app:destination="@id/todoLoginFragment" />
     </fragment>
     <fragment
         android:id="@+id/todoEditFragment"
@@ -27,5 +30,16 @@
         <argument
             android:name="isNewItem"
             app:argType="boolean" />
+    </fragment>
+    <fragment
+        android:id="@+id/todoLoginFragment"
+        android:name="com.coriolang.todolist.ui.TodoLoginFragment"
+        android:label="@string/login"
+        tools:layout="@layout/fragment_todo_login" >
+        <action
+            android:id="@+id/action_todoLoginFragment_to_todoListFragment2"
+            app:destination="@id/todoListFragment"
+            app:popUpTo="@id/todoListFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

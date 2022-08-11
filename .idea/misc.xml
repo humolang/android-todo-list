@@ -6,8 +6,10 @@
         <entry key="..\:/Users/yanra/AndroidStudioProjects/ToDoList/app/src/main/res/layout/activity_main.xml" value="0.2674772036474164" />
         <entry key="..\:/Users/yanra/AndroidStudioProjects/ToDoList/app/src/main/res/layout/fragment_todo_edit.xml" value="0.2674772036474164" />
         <entry key="..\:/Users/yanra/AndroidStudioProjects/ToDoList/app/src/main/res/layout/fragment_todo_list.xml" value="0.2674772036474164" />
+        <entry key="..\:/Users/yanra/AndroidStudioProjects/ToDoList/app/src/main/res/layout/fragment_todo_login.xml" value="0.2101851851851852" />
         <entry key="..\:/Users/yanra/AndroidStudioProjects/ToDoList/app/src/main/res/layout/item_todo.xml" value="0.35733695652173914" />
         <entry key="..\:/Users/yanra/AndroidStudioProjects/ToDoList/app/src/main/res/menu/importance_menu.xml" value="0.5405128205128205" />
+        <entry key="..\:/Users/yanra/AndroidStudioProjects/ToDoList/app/src/main/res/menu/options_menu.xml" value="0.5405128205128205" />
         <entry key="..\:/Users/yanra/AndroidStudioProjects/ToDoList/app/src/main/res/menu/todo_edit_toolbar_menu.xml" value="0.5405128205128205" />
       </map>
     </option>
