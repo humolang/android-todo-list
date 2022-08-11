@@ -68,6 +68,9 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
             .build()
 
         deadlineDatePicker.addOnPositiveButtonClickListener { selectedDate ->
+            val text = binding.textFieldTodo.editText?.text.toString()
+            viewModel.setTodoText(text)
+
             viewModel.setTodoDeadlineDate(selectedDate)
         }
 

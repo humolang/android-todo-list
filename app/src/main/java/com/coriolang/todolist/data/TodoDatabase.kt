@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.data.todoItem.TodoItemDao
 
-@Database(entities = [TodoItem::class], version = 1, exportSchema = false)
+@Database(entities = [TodoItem::class], version = 2, exportSchema = false)
 abstract class TodoDatabase : RoomDatabase() {
 
     abstract fun todoItemDao(): TodoItemDao

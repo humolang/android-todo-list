@@ -40,10 +40,10 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val onCheckboxClicked = { id: Int, isCompleted: Boolean ->
+        val onCheckboxClicked = { id: String, isCompleted: Boolean ->
             viewModel.setTodoIsCompleted(id, isCompleted)
         }
-        val onTodoItemClicked = { id: Int ->
+        val onTodoItemClicked = { id: String ->
             viewModel.findTodoItemById(id)
 
             val action = TodoListFragmentDirections

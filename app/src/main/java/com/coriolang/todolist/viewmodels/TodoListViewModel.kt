@@ -7,6 +7,7 @@ import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.data.todoItem.TodoItemDao
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.*
 
 class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
 
@@ -18,6 +19,7 @@ class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
 
         _todoItem.update {
             it.copy(
+                id = UUID.randomUUID().toString(),
                 creationDate = currentTime,
                 modificationDate = currentTime
             )
@@ -44,7 +46,7 @@ class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
         }
     }
 
-    fun findTodoItemById(id: Int) {
+    fun findTodoItemById(id: String) {
         viewModelScope.launch {
             _todoItem.update {
                 todoItemDao.findById(id)
@@ -70,7 +72,7 @@ class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
         }
     }
 
-    fun setTodoIsCompleted(id: Int, isCompleted: Boolean) {
+    fun setTodoIsCompleted(id: String, isCompleted: Boolean) {
         viewModelScope.launch {
             var todoItem = todoItemDao.findById(id)
 

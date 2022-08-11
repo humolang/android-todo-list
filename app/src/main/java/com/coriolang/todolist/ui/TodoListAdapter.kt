@@ -12,8 +12,8 @@ import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.databinding.ItemTodoBinding
 
 class TodoListAdapter(
-    private val onCheckboxClicked: (Int, Boolean) -> Unit,
-    private val onTodoItemClicked: (Int) -> Unit
+    private val onCheckboxClicked: (String, Boolean) -> Unit,
+    private val onTodoItemClicked: (String) -> Unit
 ) : ListAdapter<TodoItem, TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
 
     class TodoItemViewHolder(

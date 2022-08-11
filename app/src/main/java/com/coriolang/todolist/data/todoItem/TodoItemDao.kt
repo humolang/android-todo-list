@@ -16,7 +16,7 @@ interface TodoItemDao {
     suspend fun delete(vararg todoItems: TodoItem)
 
     @Query("select * from todo_items where id = :id")
-    suspend fun findById(id: Int): TodoItem
+    suspend fun findById(id: String): TodoItem
 
     @Query("select * from todo_items order by creation_date asc")
     fun findAll(): Flow<List<TodoItem>>
