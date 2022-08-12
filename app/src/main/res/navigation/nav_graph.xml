@@ -37,7 +37,7 @@
         android:label="@string/login"
         tools:layout="@layout/fragment_todo_login" >
         <action
-            android:id="@+id/action_todoLoginFragment_to_todoListFragment2"
+            android:id="@+id/action_todoLoginFragment_to_todoListFragment"
             app:destination="@id/todoListFragment"
             app:popUpTo="@id/todoListFragment"
             app:popUpToInclusive="true" />
