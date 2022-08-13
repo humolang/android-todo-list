@@ -2,7 +2,7 @@ package com.coriolang.todolist.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.coriolang.todolist.data.TodoNetwork
+import com.coriolang.todolist.data.TodoListApi
 import com.coriolang.todolist.data.todoItem.Importance
 import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.data.todoItem.TodoItemDao
@@ -16,7 +16,7 @@ class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
     private val _todoItem = MutableStateFlow(TodoItem())
     val todoItem = _todoItem.asStateFlow()
 
-    private val todoNetwork = TodoNetwork()
+    private val todoListApi = TodoListApi()
 
     fun insertTodoItem() {
         val currentTime = System.currentTimeMillis()
@@ -97,7 +97,7 @@ class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
 
     fun registration(username: String, password: String) {
         viewModelScope.launch {
-            todoNetwork.registrationRequest(
+            todoListApi.registrationRequest(
                 User(username, password)
             )
         }
@@ -105,7 +105,7 @@ class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
 
     fun login(username: String, password: String) {
         viewModelScope.launch {
-            todoNetwork.loginRequest(
+            todoListApi.loginRequest(
                 User(username, password)
             )
         }
