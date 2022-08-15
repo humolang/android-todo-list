@@ -2,11 +2,9 @@ package com.coriolang.todolist.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.coriolang.todolist.data.TodoListApi
 import com.coriolang.todolist.data.todoItem.Importance
 import com.coriolang.todolist.data.todoItem.TodoItem
 import com.coriolang.todolist.data.todoItem.TodoItemDao
-import com.coriolang.todolist.data.user.User
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -15,8 +13,6 @@ class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
 
     private val _todoItem = MutableStateFlow(TodoItem())
     val todoItem = _todoItem.asStateFlow()
-
-    private val todoListApi = TodoListApi()
 
     fun insertTodoItem() {
         val currentTime = System.currentTimeMillis()
@@ -92,22 +88,6 @@ class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
     fun setTodoDeadlineDate(deadlineDate: Long) {
         _todoItem.update {
             it.copy(deadlineDate = deadlineDate)
-        }
-    }
-
-    fun registration(username: String, password: String) {
-        viewModelScope.launch {
-            todoListApi.registrationRequest(
-                User(username, password)
-            )
-        }
-    }
-
-    fun login(username: String, password: String) {
-        viewModelScope.launch {
-            todoListApi.loginRequest(
-                User(username, password)
-            )
         }
     }
 }

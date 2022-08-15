@@ -44,12 +44,7 @@ class TodoLoginFragment : Fragment(R.layout.fragment_todo_login) {
             val password = binding.textInputPassword.editText
                 ?.text.toString()
 
-            viewModel.registration(username, password)
-            viewModel.login(username, password)
-
-            val action = TodoLoginFragmentDirections
-                .actionTodoLoginFragmentToTodoListFragment()
-            findNavController().navigate(action)
+            navigateToList()
         }
 
         binding.buttonLogin.setOnClickListener {
@@ -58,22 +53,22 @@ class TodoLoginFragment : Fragment(R.layout.fragment_todo_login) {
             val password = binding.textInputPassword.editText
                 ?.text.toString()
 
-            viewModel.login(username, password)
-
-            val action = TodoLoginFragmentDirections
-                .actionTodoLoginFragmentToTodoListFragment()
-            findNavController().navigate(action)
+            navigateToList()
         }
         
         binding.buttonOffline.setOnClickListener {
-            val action = TodoLoginFragmentDirections
-                .actionTodoLoginFragmentToTodoListFragment()
-            findNavController().navigate(action)
+            navigateToList()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun navigateToList() {
+        val action = TodoLoginFragmentDirections
+            .actionTodoLoginFragmentToTodoListFragment()
+        findNavController().navigate(action)
     }
 }

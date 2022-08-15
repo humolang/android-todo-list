@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 class TodoListApi {
 
     companion object {
-        const val BASE_URL = "https://10.0.2.2:8080"
+        const val BASE_URL = "http://10.0.2.2:8080"
     }
 
     private val client = HttpClient(OkHttp)
@@ -26,7 +26,7 @@ class TodoListApi {
         val jsonUser = Json.encodeToString(user)
 
         withContext(Dispatchers.IO) {
-            client.post("$BASE_URL/reg") {
+            client.post("$BASE_URL/registration") {
                 contentType(ContentType.Application.Json)
                 setBody(jsonUser)
             }
@@ -67,11 +67,16 @@ class TodoListApi {
     }
 
     suspend fun patchListRequest(todoItems: List<TodoItem>): List<TodoItem> {
+        val jsonTodoItems = Json.encodeToString(todoItems)
+
         val response = withContext(Dispatchers.IO) {
             client.patch("$BASE_URL/list") {
                 headers {
                     append(HttpHeaders.Authorization, "Bearer $token")
                 }
+
+                contentType(ContentType.Application.Json)
+                setBody(jsonTodoItems)
             }
         }
 
