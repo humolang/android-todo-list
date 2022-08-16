@@ -1,4 +1,4 @@
-package com.coriolang.todolist.ui
+package com.coriolang.todolist.ui.view
 
 import android.os.Bundle
 import android.text.format.DateUtils
@@ -14,18 +14,17 @@ import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.R
 import com.coriolang.todolist.TodoApplication
 import com.coriolang.todolist.data.model.Importance
-import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.databinding.FragmentTodoEditBinding
-import com.coriolang.todolist.viewmodels.TodoListViewModel
-import com.coriolang.todolist.viewmodels.TodoListViewModelFactory
+import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
+import com.coriolang.todolist.ui.viewmodels.TodoListViewModelFactory
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
 
 class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
-    private var isNewItem: Boolean = true
+    private var id: String = ""
     companion object {
-        private const val IS_NEW_ITEM = "isNewItem"
+        private const val ID = "id"
     }
 
     private var _binding: FragmentTodoEditBinding? = null
@@ -34,7 +33,7 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
     private val viewModel: TodoListViewModel by activityViewModels {
         TodoListViewModelFactory(
-            (activity?.application as TodoApplication).database.todoItemDao()
+            (activity?.application as TodoApplication).repository
         )
     }
 
@@ -42,7 +41,7 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            isNewItem = it.getBoolean(IS_NEW_ITEM)
+            id = it.getString(ID, "")
         }
     }
 
@@ -59,8 +58,7 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.textFieldTodo.editText?.addTextChangedListener {
-            val text = it.toString()
-            viewModel.setTodoText(text)
+            viewModel.setTodoText(it.toString())
         }
 
         binding.switchDeadlineDate.setOnCheckedChangeListener { _, isChecked ->
@@ -74,7 +72,7 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
             .build()
 
         deadlineDatePicker.addOnPositiveButtonClickListener { selectedDate ->
-            viewModel.setTodoDeadlineDate(selectedDate)
+            viewModel.setTodoDeadline(selectedDate)
         }
 
         binding.buttonDeadlineDate.setOnClickListener {
@@ -103,41 +101,44 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
         binding.buttonSave.setOnClickListener {
             if (!binding.switchDeadlineDate.isChecked) {
-                viewModel.setTodoDeadlineDate(0L)
+                viewModel.setTodoDeadline(0L)
             }
 
-            if (isNewItem) {
+            if (id.isEmpty()) {
                 viewModel.insertTodoItem()
             } else {
-                viewModel.updateTodoItem()
+                viewModel.updateTodoItem(id)
             }
 
             navigateToList()
         }
 
-        if (isNewItem) {
+        if (id.isEmpty()) {
             binding.buttonDelete.visibility = View.GONE
         } else {
             binding.buttonDelete.setOnClickListener {
-                viewModel.deleteTodoItem()
+                viewModel.deleteTodoItem(id)
                 navigateToList()
             }
         }
 
-        updateFields(viewModel.todoItem.value)
+        setTextFieldContent(viewModel.todoText.value)
+        setDeadlineViewContent(viewModel.todoDeadline.value)
+        setImportanceViewContent(viewModel.todoImportance.value)
 
         lifecycleScope.launch {
-            viewModel.todoItem.collect {
-                updateFields(it)
+            launch {
+                viewModel.todoDeadline.collect {
+                    setDeadlineViewContent(it)
+                }
+            }
+
+            launch {
+                viewModel.todoImportance.collect {
+                    setImportanceViewContent(it)
+                }
             }
         }
-    }
-
-    override fun onStop() {
-        val text = binding.textFieldTodo.editText?.text.toString()
-        viewModel.setTodoText(text)
-
-        super.onStop()
     }
 
     override fun onDestroyView() {
@@ -151,22 +152,26 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
         findNavController().navigate(action)
     }
 
-    private fun updateFields(todoItem: TodoItem) {
-        binding.textFieldTodo.editText
-            ?.setText(todoItem.text)
+    private fun setTextFieldContent(text: String) {
+        binding.textFieldTodo.editText?.setText(text)
+    }
 
-        val hasDeadline = todoItem.deadlineDate > 0L
+    private fun setDeadlineViewContent(deadline: Long) {
+        val hasDeadline = deadline > 0L
+
         binding.switchDeadlineDate.isChecked = hasDeadline
         binding.buttonDeadlineDate.isEnabled = hasDeadline
 
         if (hasDeadline) {
             binding.buttonDeadlineDate.text = DateUtils
-                .formatDateTime(context, todoItem.deadlineDate, DateUtils.FORMAT_SHOW_DATE)
+                .formatDateTime(context, deadline, DateUtils.FORMAT_SHOW_DATE)
         } else {
             binding.buttonDeadlineDate.text = getString(R.string.select_date)
         }
+    }
 
-        binding.buttonImportanceMenu.text = when (todoItem.importance) {
+    private fun setImportanceViewContent(importance: Importance) {
+        binding.buttonImportanceMenu.text = when (importance) {
             Importance.LOW -> getString(R.string.low_importance)
             Importance.NORMAL -> getString(R.string.normal_importance)
             Importance.HIGH -> getString(R.string.high_importance)

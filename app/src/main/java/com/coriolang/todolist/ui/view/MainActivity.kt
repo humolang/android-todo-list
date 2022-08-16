@@ -1,4 +1,4 @@
-package com.coriolang.todolist.ui
+package com.coriolang.todolist.ui.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

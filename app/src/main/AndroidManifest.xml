@@ -16,11 +16,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ToDoList"
-        tools:targetApi="31"
-        android:usesCleartextTraffic="true" >
+        tools:targetApi="31" >
 
         <activity
-            android:name="com.coriolang.todolist.MainActivity"
+            android:name="com.coriolang.todolist.ui.view.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

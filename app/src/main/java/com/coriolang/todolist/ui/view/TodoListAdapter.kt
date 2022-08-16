@@ -1,4 +1,4 @@
-package com.coriolang.todolist.ui
+package com.coriolang.todolist.ui.view
 
 import android.content.Context
 import android.view.LayoutInflater

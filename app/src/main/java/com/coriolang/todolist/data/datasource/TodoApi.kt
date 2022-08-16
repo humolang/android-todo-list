@@ -1,7 +1,7 @@
-package com.coriolang.todolist.data
+package com.coriolang.todolist.data.datasource
 
-import com.coriolang.todolist.data.todoItem.TodoItem
-import com.coriolang.todolist.data.user.User
+import com.coriolang.todolist.data.model.TodoItem
+import com.coriolang.todolist.data.model.User
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
@@ -13,7 +13,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class TodoListApi {
+class TodoApi {
 
     companion object {
         const val BASE_URL = "http://10.0.2.2:8080"

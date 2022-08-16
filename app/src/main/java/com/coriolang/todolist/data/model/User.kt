@@ -1,4 +1,4 @@
-package com.coriolang.todolist.data.user
+package com.coriolang.todolist.data.model
 
 import kotlinx.serialization.Serializable
 

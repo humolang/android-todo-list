@@ -1,4 +1,4 @@
-package com.coriolang.todolist.ui
+package com.coriolang.todolist.ui.view
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,8 +10,8 @@ import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.R
 import com.coriolang.todolist.TodoApplication
 import com.coriolang.todolist.databinding.FragmentTodoLoginBinding
-import com.coriolang.todolist.viewmodels.TodoListViewModel
-import com.coriolang.todolist.viewmodels.TodoListViewModelFactory
+import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
+import com.coriolang.todolist.ui.viewmodels.TodoListViewModelFactory
 
 class TodoLoginFragment : Fragment(R.layout.fragment_todo_login) {
 
@@ -21,7 +21,7 @@ class TodoLoginFragment : Fragment(R.layout.fragment_todo_login) {
 
     private val viewModel: TodoListViewModel by activityViewModels {
         TodoListViewModelFactory(
-            (activity?.application as TodoApplication).database.todoItemDao()
+            (activity?.application as TodoApplication).repository
         )
     }
 

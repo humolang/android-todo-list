@@ -1,93 +1,55 @@
-package com.coriolang.todolist.viewmodels
+package com.coriolang.todolist.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.data.model.TodoItem
-import com.coriolang.todolist.data.datasource.TodoItemDao
-import kotlinx.coroutines.flow.*
+import com.coriolang.todolist.data.repository.TodoItemRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.*
 
-class TodoListViewModel(private val todoItemDao: TodoItemDao) : ViewModel() {
+class TodoListViewModel(
+    private val repository: TodoItemRepository
+    ) : ViewModel() {
 
-    private val _todoItem = MutableStateFlow(TodoItem())
-    val todoItem = _todoItem.asStateFlow()
+    val todoItems: Flow<List<TodoItem>>
+        get() = repository.todoItems
+
+    val todoText: StateFlow<String>
+        get() = repository.todoText
+
+    val todoDeadline: StateFlow<Long>
+        get() = repository.todoDeadline
+
+    val todoImportance: StateFlow<Importance>
+        get() = repository.todoImportance
 
     fun insertTodoItem() {
-        val currentTime = System.currentTimeMillis()
-
-        _todoItem.update {
-            it.copy(
-                id = UUID.randomUUID().toString(),
-                creationDate = currentTime,
-                modificationDate = currentTime
-            )
-        }
-
         viewModelScope.launch {
-            todoItemDao.insert(todoItem.value)
+            repository.insertTodoItem()
         }
     }
 
-    fun updateTodoItem() {
-        _todoItem.update {
-            it.copy(modificationDate = System.currentTimeMillis())
-        }
-
+    fun updateTodoItem(id: String) {
         viewModelScope.launch {
-            todoItemDao.update(todoItem.value)
+            repository.updateTodoItem(id)
         }
     }
 
-    fun deleteTodoItem() {
+    fun deleteTodoItem(id: String) {
         viewModelScope.launch {
-            todoItemDao.delete(todoItem.value)
+            repository.deleteTodoItem(id)
         }
     }
 
-    fun findTodoItemById(id: String) {
-        viewModelScope.launch {
-            _todoItem.update {
-                todoItemDao.findById(id)
-            }
-        }
-    }
-
-    fun allTodoItems(): Flow<List<TodoItem>> = todoItemDao.findAll()
-
-    fun defaultTodoItem() {
-        _todoItem.update { TodoItem() }
-    }
-
-    fun setTodoText(text: String) {
-        _todoItem.update {
-            it.copy(text = text)
-        }
-    }
-
-    fun setTodoImportance(importance: Importance) {
-        _todoItem.update {
-            it.copy(importance = importance)
-        }
-    }
+    fun setTodoText(text: String) = repository.setTodoText(text)
+    fun setTodoDeadline(deadline: Long) = repository.setTodoDeadline(deadline)
+    fun setTodoImportance(importance: Importance) = repository.setTodoImportance(importance)
 
     fun setTodoIsCompleted(id: String, isCompleted: Boolean) {
         viewModelScope.launch {
-            var todoItem = todoItemDao.findById(id)
-
-            todoItem = todoItem.copy(
-                isCompleted = isCompleted,
-                modificationDate = System.currentTimeMillis()
-            )
-
-            todoItemDao.update(todoItem)
-        }
-    }
-
-    fun setTodoDeadlineDate(deadlineDate: Long) {
-        _todoItem.update {
-            it.copy(deadlineDate = deadlineDate)
+            repository.setTodoIsCompleted(id, isCompleted)
         }
     }
 }

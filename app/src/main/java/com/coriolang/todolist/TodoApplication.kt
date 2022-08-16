@@ -1,9 +1,11 @@
 package com.coriolang.todolist
 
 import android.app.Application
-import com.coriolang.todolist.data.TodoDatabase
+import com.coriolang.todolist.data.datasource.TodoDatabase
+import com.coriolang.todolist.data.repository.TodoItemRepository
 
 class TodoApplication : Application() {
 
-    val database: TodoDatabase by lazy { TodoDatabase.getDatabase(this) }
+    private val database: TodoDatabase by lazy { TodoDatabase.getDatabase(this) }
+    val repository: TodoItemRepository by lazy { TodoItemRepository(database.todoItemDao()) }
 }

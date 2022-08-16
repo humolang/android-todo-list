@@ -1,6 +1,7 @@
-package com.coriolang.todolist.data.todoItem
+package com.coriolang.todolist.data.datasource
 
 import androidx.room.*
+import com.coriolang.todolist.data.model.TodoItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao

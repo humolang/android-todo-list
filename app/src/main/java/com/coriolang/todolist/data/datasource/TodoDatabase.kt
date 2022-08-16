@@ -1,13 +1,12 @@
-package com.coriolang.todolist.data
+package com.coriolang.todolist.data.datasource
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.coriolang.todolist.data.todoItem.TodoItem
-import com.coriolang.todolist.data.todoItem.TodoItemDao
+import com.coriolang.todolist.data.model.TodoItem
 
-@Database(entities = [TodoItem::class], version = 2, exportSchema = false)
+@Database(entities = [TodoItem::class], version = 1)
 abstract class TodoDatabase : RoomDatabase() {
 
     abstract fun todoItemDao(): TodoItemDao
