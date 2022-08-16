@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.coriolang.todolist.R
-import com.coriolang.todolist.data.todoItem.Importance
-import com.coriolang.todolist.data.todoItem.TodoItem
+import com.coriolang.todolist.data.model.Importance
+import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.databinding.ItemTodoBinding
 
 class TodoListAdapter(

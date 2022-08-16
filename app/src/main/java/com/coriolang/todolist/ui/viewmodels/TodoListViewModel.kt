@@ -2,9 +2,9 @@ package com.coriolang.todolist.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.coriolang.todolist.data.todoItem.Importance
-import com.coriolang.todolist.data.todoItem.TodoItem
-import com.coriolang.todolist.data.todoItem.TodoItemDao
+import com.coriolang.todolist.data.model.Importance
+import com.coriolang.todolist.data.model.TodoItem
+import com.coriolang.todolist.data.datasource.TodoItemDao
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*

@@ -6,14 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.R
 import com.coriolang.todolist.TodoApplication
-import com.coriolang.todolist.data.todoItem.Importance
-import com.coriolang.todolist.data.todoItem.TodoItem
+import com.coriolang.todolist.data.model.Importance
+import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.databinding.FragmentTodoEditBinding
 import com.coriolang.todolist.viewmodels.TodoListViewModel
 import com.coriolang.todolist.viewmodels.TodoListViewModelFactory
@@ -57,6 +58,11 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.textFieldTodo.editText?.addTextChangedListener {
+            val text = it.toString()
+            viewModel.setTodoText(text)
+        }
+
         binding.switchDeadlineDate.setOnCheckedChangeListener { _, isChecked ->
             binding.buttonDeadlineDate.isEnabled = isChecked
         }
@@ -68,9 +74,6 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
             .build()
 
         deadlineDatePicker.addOnPositiveButtonClickListener { selectedDate ->
-            val text = binding.textFieldTodo.editText?.text.toString()
-            viewModel.setTodoText(text)
-
             viewModel.setTodoDeadlineDate(selectedDate)
         }
 
@@ -99,9 +102,6 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
         }
 
         binding.buttonSave.setOnClickListener {
-            val text = binding.textFieldTodo.editText?.text.toString()
-            viewModel.setTodoText(text)
-
             if (!binding.switchDeadlineDate.isChecked) {
                 viewModel.setTodoDeadlineDate(0L)
             }

@@ -2,7 +2,7 @@ package com.coriolang.todolist.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.coriolang.todolist.data.todoItem.TodoItemDao
+import com.coriolang.todolist.data.datasource.TodoItemDao
 
 class TodoListViewModelFactory(
     private val todoItemDao: TodoItemDao

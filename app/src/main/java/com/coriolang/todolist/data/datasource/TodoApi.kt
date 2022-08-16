@@ -50,6 +50,20 @@ class TodoListApi {
         token = hashMap["token"] ?: ""
     }
 
+    suspend fun getTokenRequest(username: String) {
+        val response = withContext(Dispatchers.IO) {
+            client.post("$BASE_URL/token") {
+                setBody(username)
+            }
+        }
+
+        val jsonHashMap = response.body<String>()
+        val hashMap = Json
+            .decodeFromString<HashMap<String, String>>(jsonHashMap)
+
+        token = hashMap["token"] ?: ""
+    }
+
     suspend fun getListRequest(): List<TodoItem> {
         val response = withContext(Dispatchers.IO) {
             client.get("$BASE_URL/list") {
