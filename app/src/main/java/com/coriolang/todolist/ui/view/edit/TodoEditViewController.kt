@@ -1,86 +1,75 @@
-package com.coriolang.todolist.ui.view
+package com.coriolang.todolist.ui.view.edit
 
-import android.os.Bundle
 import android.text.format.DateUtils
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.R
-import com.coriolang.todolist.TodoApplication
 import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.databinding.FragmentTodoEditBinding
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
-import com.coriolang.todolist.ui.viewmodels.TodoListViewModelFactory
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
 
-class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
+class TodoEditViewController(
+    private val activity: FragmentActivity,
+    private val fragment: Fragment,
+    private val binding: FragmentTodoEditBinding,
+    private val lifecycleOwner: LifecycleOwner,
+    private val viewModel: TodoListViewModel,
+    private val id: String
+    ) {
 
-    private var id: String = ""
-    companion object {
-        private const val ID = "id"
-    }
+    fun setupViews() {
+        setupTextField()
+        setupSwitchDeadline()
+        setupDeadlinePicker()
+        setupButtonImportance()
+        setupButtonSave()
+        setupButtonDelete()
 
-    private var _binding: FragmentTodoEditBinding? = null
-    private val binding
-        get() = _binding!!
+        setTextFieldContent(viewModel.todoText.value)
+        setDeadlineViewContent(viewModel.todoDeadline.value)
+        setImportanceViewContent(viewModel.todoImportance.value)
 
-    private val viewModel: TodoListViewModel by activityViewModels {
-        TodoListViewModelFactory(
-            (activity?.application as TodoApplication).repository
-        )
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            id = it.getString(ID, "")
+        activity.lifecycleScope.launch {
+            launch { observeDeadlineDate() }
+            launch { observeImportance() }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = FragmentTodoEditBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    private fun setupTextField() {
         binding.textFieldTodo.editText?.addTextChangedListener {
             viewModel.setTodoText(it.toString())
         }
+    }
 
+    private fun setupSwitchDeadline() {
         binding.switchDeadlineDate.setOnCheckedChangeListener { _, isChecked ->
             binding.buttonDeadlineDate.isEnabled = isChecked
         }
+    }
 
-        val deadlineDatePicker = MaterialDatePicker.Builder
-            .datePicker()
-            .setTitleText(getString(R.string.select_deadline_date))
-            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-            .build()
+    private fun setupDeadlinePicker() {
+        val deadlineDatePicker = buildDatePicker()
 
         deadlineDatePicker.addOnPositiveButtonClickListener { selectedDate ->
             viewModel.setTodoDeadline(selectedDate)
         }
 
         binding.buttonDeadlineDate.setOnClickListener {
-            deadlineDatePicker.show(childFragmentManager, "tag")
+            deadlineDatePicker.show(fragment.childFragmentManager, "tag")
         }
+    }
 
+    private fun setupButtonImportance() {
         binding.buttonImportanceMenu.setOnClickListener {
-            val importanceMenu = PopupMenu(requireContext(), it)
+            val importanceMenu = PopupMenu(activity, it)
 
             importanceMenu.menuInflater.inflate(R.menu.importance_menu, importanceMenu.menu)
             importanceMenu.setForceShowIcon(true)
@@ -98,7 +87,9 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
             importanceMenu.show()
         }
+    }
 
+    private fun setupButtonSave() {
         binding.buttonSave.setOnClickListener {
             if (!binding.switchDeadlineDate.isChecked) {
                 viewModel.setTodoDeadline(0L)
@@ -112,7 +103,9 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
             navigateToList()
         }
+    }
 
+    private fun setupButtonDelete() {
         if (id.isEmpty()) {
             binding.buttonDelete.visibility = View.GONE
         } else {
@@ -121,35 +114,6 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
                 navigateToList()
             }
         }
-
-        setTextFieldContent(viewModel.todoText.value)
-        setDeadlineViewContent(viewModel.todoDeadline.value)
-        setImportanceViewContent(viewModel.todoImportance.value)
-
-        lifecycleScope.launch {
-            launch {
-                viewModel.todoDeadline.collect {
-                    setDeadlineViewContent(it)
-                }
-            }
-
-            launch {
-                viewModel.todoImportance.collect {
-                    setImportanceViewContent(it)
-                }
-            }
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun navigateToList() {
-        val action = TodoEditFragmentDirections
-            .actionTodoEditFragmentToTodoListFragment()
-        findNavController().navigate(action)
     }
 
     private fun setTextFieldContent(text: String) {
@@ -164,17 +128,47 @@ class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
 
         if (hasDeadline) {
             binding.buttonDeadlineDate.text = DateUtils
-                .formatDateTime(context, deadline, DateUtils.FORMAT_SHOW_DATE)
+                .formatDateTime(activity, deadline, DateUtils.FORMAT_SHOW_DATE)
         } else {
-            binding.buttonDeadlineDate.text = getString(R.string.select_date)
+            binding.buttonDeadlineDate.text = activity.getString(R.string.select_date)
         }
     }
 
     private fun setImportanceViewContent(importance: Importance) {
         binding.buttonImportanceMenu.text = when (importance) {
-            Importance.LOW -> getString(R.string.low_importance)
-            Importance.NORMAL -> getString(R.string.normal_importance)
-            Importance.HIGH -> getString(R.string.high_importance)
+            Importance.LOW -> activity.getString(R.string.low_importance)
+            Importance.NORMAL -> activity.getString(R.string.normal_importance)
+            Importance.HIGH -> activity.getString(R.string.high_importance)
+        }
+    }
+
+    private fun buildDatePicker(): MaterialDatePicker<Long> {
+        return MaterialDatePicker.Builder
+            .datePicker()
+            .setTitleText(
+                activity.getString(R.string.select_deadline_date)
+            )
+            .setSelection(
+                MaterialDatePicker.todayInUtcMilliseconds()
+            )
+            .build()
+    }
+
+    private fun navigateToList() {
+        val action = TodoEditFragmentDirections
+            .actionTodoEditFragmentToTodoListFragment()
+        fragment.findNavController().navigate(action)
+    }
+
+    private suspend fun observeDeadlineDate() {
+        viewModel.todoDeadline.collect {
+            setDeadlineViewContent(it)
+        }
+    }
+
+    private suspend fun observeImportance() {
+        viewModel.todoImportance.collect {
+            setImportanceViewContent(it)
         }
     }
 }

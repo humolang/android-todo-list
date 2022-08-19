@@ -1,8 +1,9 @@
-package com.coriolang.todolist.ui.viewmodels
+package com.coriolang.todolist.ioc
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.coriolang.todolist.data.repository.TodoItemRepository
+import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 
 class TodoListViewModelFactory(
     private val repository: TodoItemRepository
