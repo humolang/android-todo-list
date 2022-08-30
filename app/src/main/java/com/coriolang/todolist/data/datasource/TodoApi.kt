@@ -6,6 +6,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,11 +26,16 @@ class TodoApi {
     suspend fun registrationRequest(user: User) {
         val jsonUser = Json.encodeToString(user)
 
-        withContext(Dispatchers.IO) {
+        val response = withContext(Dispatchers.IO) {
             client.post("$BASE_URL/registration") {
                 contentType(ContentType.Application.Json)
                 setBody(jsonUser)
             }
+        }
+
+        if (response.status != HttpStatusCode.Created) {
+            val message = "${response.status.value} ${response.bodyAsText()}"
+            throw RequestException(message)
         }
     }
 
@@ -41,6 +47,11 @@ class TodoApi {
                 contentType(ContentType.Application.Json)
                 setBody(jsonUser)
             }
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            val message = "${response.status.value} ${response.bodyAsText()}"
+            throw RequestException(message)
         }
 
         val jsonHashMap = response.body<String>()

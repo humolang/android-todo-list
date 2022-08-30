@@ -1,22 +1,29 @@
 package com.coriolang.todolist.ui.view.login
 
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.databinding.FragmentTodoLoginBinding
+import com.coriolang.todolist.ui.NAVIGATE_TO_LIST
+import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
+import kotlinx.coroutines.launch
 
 class TodoLoginViewController(
     private val activity: FragmentActivity,
     private val fragment: Fragment,
     private val binding: FragmentTodoLoginBinding,
-    private val lifecycleOwner: LifecycleOwner
+    private val lifecycleOwner: LifecycleOwner,
+    private val viewModel: TodoListViewModel
     ) {
 
     fun setupViews() {
         setupButtonRegistration()
         setupButtonLogin()
         setupButtonOffline()
+        setupExceptionToast()
     }
 
     private fun setupButtonRegistration() {
@@ -24,7 +31,7 @@ class TodoLoginViewController(
             val username = getUsername()
             val password = getPassword()
 
-            navigateToList()
+            viewModel.registerUser(username, password)
         }
     }
 
@@ -33,13 +40,29 @@ class TodoLoginViewController(
             val username = getUsername()
             val password = getPassword()
 
-            navigateToList()
+            viewModel.loginUser(username, password)
         }
     }
 
     private fun setupButtonOffline() {
         binding.buttonOffline.setOnClickListener {
             navigateToList()
+        }
+    }
+
+    private fun setupExceptionToast() {
+        fragment.lifecycleScope.launch {
+            viewModel.exceptionMessage.collect {
+                if (it == NAVIGATE_TO_LIST) {
+                    navigateToList()
+                } else if (it.isNotEmpty()) {
+                    Toast.makeText(
+                        fragment.context,
+                        it,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
     }
 

@@ -1,8 +1,10 @@
 package com.coriolang.todolist.data.repository
 
+import com.coriolang.todolist.data.datasource.TodoApi
 import com.coriolang.todolist.data.datasource.TodoItemDao
 import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.data.model.TodoItem
+import com.coriolang.todolist.data.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +13,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class TodoItemRepository(private val todoItemDao: TodoItemDao) {
+class TodoItemRepository(
+    private val todoItemDao: TodoItemDao,
+    private val todoApi: TodoApi
+    ) {
 
     val todoItems: Flow<List<TodoItem>>
         get() = todoItemDao.findAll()
@@ -81,5 +86,15 @@ class TodoItemRepository(private val todoItemDao: TodoItemDao) {
                 modificationDate = System.currentTimeMillis()
             ))
         }
+    }
+
+    suspend fun registerUser(username: String, password: String) {
+        val user = User(username, password)
+        todoApi.registrationRequest(user)
+    }
+
+    suspend fun loginUser(username: String, password: String) {
+        val user = User(username, password)
+        todoApi.loginRequest(user)
     }
 }

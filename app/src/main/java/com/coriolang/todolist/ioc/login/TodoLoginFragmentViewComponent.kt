@@ -14,6 +14,7 @@ class TodoLoginFragmentViewComponent(
         activity = fragmentComponent.fragment.requireActivity(),
         fragment = fragmentComponent.fragment,
         binding = binding,
-        lifecycleOwner = lifecycleOwner
+        lifecycleOwner = lifecycleOwner,
+        viewModel = fragmentComponent.viewModel
     )
 }
