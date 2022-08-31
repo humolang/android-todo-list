@@ -6,7 +6,6 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,7 +16,7 @@ import kotlinx.serialization.json.Json
 class TodoApi {
 
     companion object {
-        const val BASE_URL = "http://10.0.2.2:8080"
+        const val BASE_URL = "https://10.0.2.2:8443"
     }
 
     private val client = HttpClient(OkHttp)
@@ -34,8 +33,7 @@ class TodoApi {
         }
 
         if (response.status != HttpStatusCode.Created) {
-            val message = "${response.status.value} ${response.bodyAsText()}"
-            throw RequestException(message)
+            throw RequestException(response)
         }
     }
 
@@ -50,8 +48,7 @@ class TodoApi {
         }
 
         if (response.status != HttpStatusCode.OK) {
-            val message = "${response.status.value} ${response.bodyAsText()}"
-            throw RequestException(message)
+            throw RequestException(response)
         }
 
         val jsonHashMap = response.body<String>()

@@ -33,10 +33,12 @@ class TodoListViewModel(
     private val handler = CoroutineExceptionHandler { _, exception ->
         if (exception is RequestException) {
             _exceptionMessage.update {
-                exception.message ?: ""
+                exception.message
             }
-            
+
             _exceptionMessage.update { "" }
+        } else {
+            throw exception
         }
     }
 
