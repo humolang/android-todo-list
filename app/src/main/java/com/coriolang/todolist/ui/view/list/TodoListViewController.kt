@@ -3,6 +3,7 @@ package com.coriolang.todolist.ui.view.list
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -14,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coriolang.todolist.R
 import com.coriolang.todolist.databinding.FragmentTodoListBinding
+import com.coriolang.todolist.ui.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 import kotlinx.coroutines.launch
 
@@ -31,6 +33,7 @@ class TodoListViewController(
         setupSwipeRefresh()
         setupRecyclerView()
         setupFab()
+        setupExceptionToast()
     }
 
     private fun setupMenu() {
@@ -56,7 +59,10 @@ class TodoListViewController(
     }
 
     private fun setupSwipeRefresh() {
-        binding.swipeRefreshTodo.setOnRefreshListener {  }
+        binding.swipeRefreshTodo.setOnRefreshListener {
+            viewModel.refreshTodoList()
+            binding.swipeRefreshTodo.isRefreshing = false
+        }
     }
 
     private fun setupRecyclerView() {
@@ -64,7 +70,7 @@ class TodoListViewController(
             .layoutManager = LinearLayoutManager(activity)
         binding.recyclerViewTodo.adapter = adapter
 
-        activity.lifecycleScope.launch {
+        fragment.lifecycleScope.launch {
             observeTodoItems()
         }
     }
@@ -73,6 +79,24 @@ class TodoListViewController(
         binding.fabAddItem.setOnClickListener {
             navigateToItem()
         }
+    }
+
+    private fun setupExceptionToast() {
+        fragment.lifecycleScope.launch {
+            viewModel.exceptionMessage.collect {
+                if (it.isNotEmpty() && it != OK) {
+                    showToast(it)
+                }
+            }
+        }
+    }
+
+    private fun showToast(text: String) {
+        Toast.makeText(
+            fragment.context,
+            text,
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private suspend fun observeTodoItems() {

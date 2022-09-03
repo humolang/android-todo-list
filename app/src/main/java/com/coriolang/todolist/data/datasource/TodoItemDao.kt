@@ -20,5 +20,8 @@ interface TodoItemDao {
     suspend fun findById(id: String): TodoItem
 
     @Query("select * from todo_items order by creation_date asc")
-    fun findAll(): Flow<List<TodoItem>>
+    fun getObservableList(): Flow<List<TodoItem>>
+
+    @Query("select * from todo_items order by creation_date asc")
+    fun findAll(): List<TodoItem>
 }

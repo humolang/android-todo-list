@@ -7,7 +7,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.databinding.FragmentTodoLoginBinding
-import com.coriolang.todolist.ui.NAVIGATE_TO_LIST
+import com.coriolang.todolist.ui.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 import kotlinx.coroutines.launch
 
@@ -32,6 +32,7 @@ class TodoLoginViewController(
             val password = getPassword()
 
             viewModel.registerUser(username, password)
+            viewModel.loginUser(username, password)
         }
     }
 
@@ -53,17 +54,21 @@ class TodoLoginViewController(
     private fun setupExceptionToast() {
         fragment.lifecycleScope.launch {
             viewModel.exceptionMessage.collect {
-                if (it == NAVIGATE_TO_LIST) {
+                if (it == OK) {
                     navigateToList()
                 } else if (it.isNotEmpty()) {
-                    Toast.makeText(
-                        fragment.context,
-                        it,
-                        Toast.LENGTH_LONG
-                    ).show()
+                    showToast(it)
                 }
             }
         }
+    }
+
+    private fun showToast(text: String) {
+        Toast.makeText(
+            fragment.context,
+            text,
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun getUsername() = binding.textInputUsername

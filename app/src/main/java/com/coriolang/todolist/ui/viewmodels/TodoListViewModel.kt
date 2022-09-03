@@ -2,14 +2,15 @@ package com.coriolang.todolist.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.coriolang.todolist.data.datasource.RequestException
+import com.coriolang.todolist.exceptions.RequestException
 import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.data.repository.TodoItemRepository
-import com.coriolang.todolist.ui.NAVIGATE_TO_LIST
+import com.coriolang.todolist.ui.OK
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class TodoListViewModel(
     private val repository: TodoItemRepository
@@ -42,21 +43,44 @@ class TodoListViewModel(
         }
     }
 
+    fun refreshTodoList() {
+        viewModelScope.launch(handler) {
+            repository.refreshTodoList()
+        }
+    }
+
     fun insertTodoItem() {
-        viewModelScope.launch {
+        viewModelScope.launch(handler) {
             repository.insertTodoItem()
         }
     }
 
     fun updateTodoItem(id: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(handler) {
             repository.updateTodoItem(id)
         }
     }
 
     fun deleteTodoItem(id: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(handler) {
             repository.deleteTodoItem(id)
+        }
+    }
+
+    fun findTodoItemById(id: String) {
+        val todoItem = runBlocking(handler) {
+            repository.findTodoItemById(id)
+        }
+
+        // todoItem == null if no such row in database
+        if (todoItem != null) {
+            repository.setTodoText(todoItem.text)
+            repository.setTodoDeadline(todoItem.deadlineDate)
+            repository.setTodoImportance(todoItem.importance)
+        } else {
+            repository.setTodoText("")
+            repository.setTodoDeadline(0L)
+            repository.setTodoImportance(Importance.NORMAL)
         }
     }
 
@@ -65,7 +89,7 @@ class TodoListViewModel(
     fun setTodoImportance(importance: Importance) = repository.setTodoImportance(importance)
 
     fun setTodoIsCompleted(id: String, isCompleted: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(handler) {
             repository.setTodoIsCompleted(id, isCompleted)
         }
     }
@@ -73,17 +97,15 @@ class TodoListViewModel(
     fun registerUser(username: String, password: String) {
         viewModelScope.launch(handler) {
             repository.registerUser(username, password)
-
-            _exceptionMessage.update { NAVIGATE_TO_LIST }
-            _exceptionMessage.update { "" }
         }
     }
 
     fun loginUser(username: String, password: String) {
         viewModelScope.launch(handler) {
             repository.loginUser(username, password)
+            repository.getTodoList()
 
-            _exceptionMessage.update { NAVIGATE_TO_LIST }
+            _exceptionMessage.update { OK }
             _exceptionMessage.update { "" }
         }
     }

@@ -2,6 +2,7 @@ package com.coriolang.todolist.ui.view.edit
 
 import android.text.format.DateUtils
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -12,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.R
 import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.databinding.FragmentTodoEditBinding
+import com.coriolang.todolist.ui.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch
@@ -32,12 +34,15 @@ class TodoEditViewController(
         setupButtonImportance()
         setupButtonSave()
         setupButtonDelete()
+        setupExceptionToast()
+
+        viewModel.findTodoItemById(id)
 
         setTextFieldContent(viewModel.todoText.value)
         setDeadlineViewContent(viewModel.todoDeadline.value)
         setImportanceViewContent(viewModel.todoImportance.value)
 
-        activity.lifecycleScope.launch {
+        fragment.lifecycleScope.launch {
             launch { observeDeadlineDate() }
             launch { observeImportance() }
         }
@@ -114,6 +119,24 @@ class TodoEditViewController(
                 navigateToList()
             }
         }
+    }
+
+    private fun setupExceptionToast() {
+        fragment.lifecycleScope.launch {
+            viewModel.exceptionMessage.collect {
+                if (it.isNotEmpty() && it != OK) {
+                    showToast(it)
+                }
+            }
+        }
+    }
+
+    private fun showToast(text: String) {
+        Toast.makeText(
+            fragment.context,
+            text,
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun setTextFieldContent(text: String) {

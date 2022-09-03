@@ -2,10 +2,13 @@ package com.coriolang.todolist.data.datasource
 
 import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.data.model.User
+import com.coriolang.todolist.exceptions.RequestException
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +22,10 @@ class TodoApi {
         const val BASE_URL = "https://10.0.2.2:8443"
     }
 
-    private val client = HttpClient(OkHttp)
+    private val client = HttpClient(OkHttp) {
+        install(HttpCookies)
+    }
+
     private var token = ""
 
     suspend fun registrationRequest(user: User) {
@@ -58,20 +64,6 @@ class TodoApi {
         token = hashMap["token"] ?: ""
     }
 
-    suspend fun getTokenRequest(username: String) {
-        val response = withContext(Dispatchers.IO) {
-            client.post("$BASE_URL/token") {
-                setBody(username)
-            }
-        }
-
-        val jsonHashMap = response.body<String>()
-        val hashMap = Json
-            .decodeFromString<HashMap<String, String>>(jsonHashMap)
-
-        token = hashMap["token"] ?: ""
-    }
-
     suspend fun getListRequest(): List<TodoItem> {
         val response = withContext(Dispatchers.IO) {
             client.get("$BASE_URL/list") {
@@ -79,6 +71,10 @@ class TodoApi {
                     append(HttpHeaders.Authorization, "Bearer $token")
                 }
             }
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            throw RequestException(response)
         }
 
         val jsonList = response.body<String>()
@@ -102,6 +98,10 @@ class TodoApi {
             }
         }
 
+        if (response.status != HttpStatusCode.OK) {
+            throw RequestException(response)
+        }
+
         val jsonList = response.body<String>()
         val list = Json
             .decodeFromString<List<TodoItem>>(jsonList)
@@ -116,6 +116,10 @@ class TodoApi {
                     append(HttpHeaders.Authorization, "Bearer $token")
                 }
             }
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            throw RequestException(response)
         }
 
         val jsonItem = response.body<String>()
@@ -139,6 +143,10 @@ class TodoApi {
             }
         }
 
+        if (response.status != HttpStatusCode.OK) {
+            throw RequestException(response)
+        }
+
         jsonItem = response.body<String>()
 
         return Json
@@ -159,6 +167,10 @@ class TodoApi {
             }
         }
 
+        if (response.status != HttpStatusCode.OK) {
+            throw RequestException(response)
+        }
+
         jsonItem = response.body<String>()
 
         return Json
@@ -172,6 +184,10 @@ class TodoApi {
                     append(HttpHeaders.Authorization, "Bearer $token")
                 }
             }
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            throw RequestException(response)
         }
 
         val jsonItem = response.body<String>()
