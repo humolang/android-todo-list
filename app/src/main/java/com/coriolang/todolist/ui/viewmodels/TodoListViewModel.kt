@@ -6,7 +6,7 @@ import com.coriolang.todolist.exceptions.RequestException
 import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.data.repository.TodoItemRepository
-import com.coriolang.todolist.ui.OK
+import com.coriolang.todolist.OK
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -108,5 +108,11 @@ class TodoListViewModel(
             _exceptionMessage.update { OK }
             _exceptionMessage.update { "" }
         }
+    }
+
+    fun tokenHasExpired() = repository.tokenHasExpired()
+
+    fun clearToken() {
+        repository.clearToken()
     }
 }

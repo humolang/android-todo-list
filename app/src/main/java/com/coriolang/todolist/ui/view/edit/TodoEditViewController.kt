@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.R
 import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.databinding.FragmentTodoEditBinding
-import com.coriolang.todolist.ui.OK
+import com.coriolang.todolist.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.launch

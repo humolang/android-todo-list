@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.coriolang.todolist.R
 import com.coriolang.todolist.databinding.FragmentTodoListBinding
-import com.coriolang.todolist.ui.OK
+import com.coriolang.todolist.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 import kotlinx.coroutines.launch
 
@@ -46,14 +46,32 @@ class TodoListViewController(
                 menuInflater: MenuInflater
             ) {
                 menuInflater.inflate(R.menu.options_menu, menu)
+
+                val tokenHasExpired = viewModel.tokenHasExpired()
+
+                val loginItem = menu.findItem(R.id.option_login)
+                val logoutItem = menu.findItem(R.id.option_logout)
+
+                loginItem.isVisible = !tokenHasExpired
+                logoutItem.isVisible = tokenHasExpired
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 when (menuItem.itemId) {
-                    R.id.option_login -> navigateToLogin()
+                    R.id.option_login -> onLoginClicked()
+                    R.id.option_logout -> onLogoutClicked()
                 }
 
                 return true
+            }
+
+            private fun onLoginClicked() {
+                navigateToLogin()
+            }
+
+            private fun onLogoutClicked() {
+                viewModel.clearToken()
+                menuHost.invalidateMenu()
             }
         }, lifecycleOwner, Lifecycle.State.RESUMED)
     }

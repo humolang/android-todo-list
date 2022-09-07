@@ -141,4 +141,10 @@ class TodoItemRepository(
         val user = User(username, password)
         todoApi.loginRequest(user)
     }
+
+    fun tokenHasExpired() = todoApi.tokenHasExpired()
+
+    fun clearToken() {
+        todoApi.clearToken()
+    }
 }

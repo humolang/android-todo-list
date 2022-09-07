@@ -7,7 +7,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.coriolang.todolist.databinding.FragmentTodoLoginBinding
-import com.coriolang.todolist.ui.OK
+import com.coriolang.todolist.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 import kotlinx.coroutines.launch
 

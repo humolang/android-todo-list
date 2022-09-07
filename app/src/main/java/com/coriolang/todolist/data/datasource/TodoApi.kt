@@ -1,8 +1,10 @@
 package com.coriolang.todolist.data.datasource
 
+import android.content.SharedPreferences
 import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.data.model.User
 import com.coriolang.todolist.exceptions.RequestException
+import com.coriolang.todolist.TOKEN_KEY
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
@@ -16,17 +18,24 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class TodoApi {
+class TodoApi(
+    private val sharedPreferences: SharedPreferences
+    ) {
 
     companion object {
         const val BASE_URL = "https://10.0.2.2:8443"
+
     }
 
     private val client = HttpClient(OkHttp) {
         install(HttpCookies)
     }
 
-    private var token = ""
+    private var token: String?
+        get() = sharedPreferences
+            .getString(TOKEN_KEY, "")
+        set(value) = sharedPreferences.edit()
+            .putString(TOKEN_KEY, value).apply()
 
     suspend fun registrationRequest(user: User) {
         val jsonUser = Json.encodeToString(user)
@@ -74,6 +83,7 @@ class TodoApi {
         }
 
         if (response.status != HttpStatusCode.OK) {
+            checkUnauthorizedStatus(response)
             throw RequestException(response)
         }
 
@@ -99,6 +109,7 @@ class TodoApi {
         }
 
         if (response.status != HttpStatusCode.OK) {
+            checkUnauthorizedStatus(response)
             throw RequestException(response)
         }
 
@@ -119,6 +130,7 @@ class TodoApi {
         }
 
         if (response.status != HttpStatusCode.OK) {
+            checkUnauthorizedStatus(response)
             throw RequestException(response)
         }
 
@@ -144,6 +156,7 @@ class TodoApi {
         }
 
         if (response.status != HttpStatusCode.OK) {
+            checkUnauthorizedStatus(response)
             throw RequestException(response)
         }
 
@@ -168,6 +181,7 @@ class TodoApi {
         }
 
         if (response.status != HttpStatusCode.OK) {
+            checkUnauthorizedStatus(response)
             throw RequestException(response)
         }
 
@@ -187,6 +201,7 @@ class TodoApi {
         }
 
         if (response.status != HttpStatusCode.OK) {
+            checkUnauthorizedStatus(response)
             throw RequestException(response)
         }
 
@@ -195,5 +210,17 @@ class TodoApi {
             .decodeFromString<TodoItem>(jsonItem)
 
         return todoItem
+    }
+
+    private fun checkUnauthorizedStatus(response: HttpResponse) {
+        if (response.status == HttpStatusCode.Unauthorized) {
+            token = ""
+        }
+    }
+
+    fun tokenHasExpired() = !token.isNullOrEmpty()
+
+    fun clearToken() {
+        token = ""
     }
 }

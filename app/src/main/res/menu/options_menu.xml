@@ -4,5 +4,7 @@
 
     <item android:id="@+id/option_login"
         android:title="@string/login" />
+    <item android:id="@+id/option_logout"
+        android:title="@string/logout" />
 
 </menu>
