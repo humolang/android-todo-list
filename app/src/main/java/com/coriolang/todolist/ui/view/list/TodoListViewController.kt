@@ -17,7 +17,7 @@ import com.coriolang.todolist.R
 import com.coriolang.todolist.databinding.FragmentTodoListBinding
 import com.coriolang.todolist.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class TodoListViewController(
     private val activity: FragmentActivity,
@@ -88,7 +88,7 @@ class TodoListViewController(
             .layoutManager = LinearLayoutManager(activity)
         binding.recyclerViewTodo.adapter = adapter
 
-        fragment.lifecycleScope.launch {
+        lifecycleOwner.lifecycleScope.launch {
             observeTodoItems()
         }
     }
@@ -100,7 +100,7 @@ class TodoListViewController(
     }
 
     private fun setupExceptionToast() {
-        fragment.lifecycleScope.launch {
+        lifecycleOwner.lifecycleScope.launch {
             viewModel.exceptionMessage.collect {
                 if (it.isNotEmpty() && it != OK) {
                     showToast(it)

@@ -18,4 +18,5 @@
     <string name="continue_offline">Continue Offline</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="successfully_registration">Successfully registration. You can login now.</string>
 </resources>

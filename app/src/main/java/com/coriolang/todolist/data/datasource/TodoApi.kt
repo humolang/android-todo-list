@@ -47,8 +47,9 @@ class TodoApi(
             }
         }
 
-        if (response.status != HttpStatusCode.Created) {
-            throw RequestException(response)
+        if (response.status != HttpStatusCode.OK) {
+            val message = response.bodyAsText()
+            throw RequestException(message)
         }
     }
 
@@ -63,7 +64,8 @@ class TodoApi(
         }
 
         if (response.status != HttpStatusCode.OK) {
-            throw RequestException(response)
+            val message = response.bodyAsText()
+            throw RequestException(message)
         }
 
         val jsonHashMap = response.body<String>()
@@ -84,7 +86,9 @@ class TodoApi(
 
         if (response.status != HttpStatusCode.OK) {
             checkUnauthorizedStatus(response)
-            throw RequestException(response)
+
+            val message = response.bodyAsText()
+            throw RequestException(message)
         }
 
         val jsonList = response.body<String>()
@@ -110,7 +114,9 @@ class TodoApi(
 
         if (response.status != HttpStatusCode.OK) {
             checkUnauthorizedStatus(response)
-            throw RequestException(response)
+
+            val message = response.bodyAsText()
+            throw RequestException(message)
         }
 
         val jsonList = response.body<String>()
@@ -131,7 +137,9 @@ class TodoApi(
 
         if (response.status != HttpStatusCode.OK) {
             checkUnauthorizedStatus(response)
-            throw RequestException(response)
+
+            val message = response.bodyAsText()
+            throw RequestException(message)
         }
 
         val jsonItem = response.body<String>()
@@ -157,7 +165,9 @@ class TodoApi(
 
         if (response.status != HttpStatusCode.OK) {
             checkUnauthorizedStatus(response)
-            throw RequestException(response)
+
+            val message = response.bodyAsText()
+            throw RequestException(message)
         }
 
         jsonItem = response.body<String>()
@@ -182,7 +192,9 @@ class TodoApi(
 
         if (response.status != HttpStatusCode.OK) {
             checkUnauthorizedStatus(response)
-            throw RequestException(response)
+
+            val message = response.bodyAsText()
+            throw RequestException(message)
         }
 
         jsonItem = response.body<String>()
@@ -202,7 +214,9 @@ class TodoApi(
 
         if (response.status != HttpStatusCode.OK) {
             checkUnauthorizedStatus(response)
-            throw RequestException(response)
+
+            val message = response.bodyAsText()
+            throw RequestException(message)
         }
 
         val jsonItem = response.body<String>()

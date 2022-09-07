@@ -97,6 +97,11 @@ class TodoListViewModel(
     fun registerUser(username: String, password: String) {
         viewModelScope.launch(handler) {
             repository.registerUser(username, password)
+            repository.loginUser(username, password)
+            repository.getTodoList()
+
+            _exceptionMessage.update { OK }
+            _exceptionMessage.update { "" }
         }
     }
 

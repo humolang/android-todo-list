@@ -32,7 +32,6 @@ class TodoLoginViewController(
             val password = getPassword()
 
             viewModel.registerUser(username, password)
-            viewModel.loginUser(username, password)
         }
     }
 
@@ -52,7 +51,7 @@ class TodoLoginViewController(
     }
 
     private fun setupExceptionToast() {
-        fragment.lifecycleScope.launch {
+        lifecycleOwner.lifecycleScope.launch {
             viewModel.exceptionMessage.collect {
                 if (it == OK) {
                     navigateToList()

@@ -42,7 +42,7 @@ class TodoEditViewController(
         setDeadlineViewContent(viewModel.todoDeadline.value)
         setImportanceViewContent(viewModel.todoImportance.value)
 
-        fragment.lifecycleScope.launch {
+        lifecycleOwner.lifecycleScope.launch {
             launch { observeDeadlineDate() }
             launch { observeImportance() }
         }
@@ -122,7 +122,7 @@ class TodoEditViewController(
     }
 
     private fun setupExceptionToast() {
-        fragment.lifecycleScope.launch {
+        lifecycleOwner.lifecycleScope.launch {
             viewModel.exceptionMessage.collect {
                 if (it.isNotEmpty() && it != OK) {
                     showToast(it)
