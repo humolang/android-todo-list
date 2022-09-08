@@ -1,15 +1,7 @@
 package com.coriolang.todolist
 
 import android.app.Application
-import android.content.Context
-import com.coriolang.todolist.ioc.ApplicationComponent
+import dagger.hilt.android.HiltAndroidApp
 
-class TodoApplication : Application() {
-
-    val applicationComponent by lazy { ApplicationComponent(this) }
-
-    companion object {
-        fun get(context: Context) =
-            context.applicationContext as TodoApplication
-    }
-}
+@HiltAndroidApp
+class TodoApplication : Application()

@@ -7,12 +7,15 @@ import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.data.repository.TodoItemRepository
 import com.coriolang.todolist.OK
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
-class TodoListViewModel(
+@HiltViewModel
+class TodoListViewModel @Inject constructor(
     private val repository: TodoItemRepository
     ) : ViewModel() {
 

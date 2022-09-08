@@ -1,33 +1,66 @@
-package com.coriolang.todolist.ui.view.edit
+package com.coriolang.todolist.ui.view
 
+import android.os.Bundle
 import android.text.format.DateUtils
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.coriolang.todolist.OK
 import com.coriolang.todolist.R
 import com.coriolang.todolist.data.model.Importance
 import com.coriolang.todolist.databinding.FragmentTodoEditBinding
-import com.coriolang.todolist.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-class TodoEditViewController(
-    private val activity: FragmentActivity,
-    private val fragment: Fragment,
-    private val binding: FragmentTodoEditBinding,
-    private val lifecycleOwner: LifecycleOwner,
-    private val viewModel: TodoListViewModel,
-    private val id: String
-    ) {
+@AndroidEntryPoint
+class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
+    private var id: String = ""
+    companion object {
+        private const val ID_KEY = "id"
+    }
 
-    fun setupViews() {
+    private var _binding: FragmentTodoEditBinding? = null
+    private val binding
+        get() = _binding!!
+
+    private val viewModel: TodoListViewModel by activityViewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        arguments?.let {
+            id = it.getString(ID_KEY, "")
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentTodoEditBinding
+            .inflate(inflater, container, false)
+
+        setupViews()
+
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun setupViews() {
         setupTextField()
         setupSwitchDeadline()
         setupDeadlinePicker()
@@ -42,7 +75,7 @@ class TodoEditViewController(
         setDeadlineViewContent(viewModel.todoDeadline.value)
         setImportanceViewContent(viewModel.todoImportance.value)
 
-        lifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             launch { observeDeadlineDate() }
             launch { observeImportance() }
         }
@@ -68,13 +101,13 @@ class TodoEditViewController(
         }
 
         binding.buttonDeadlineDate.setOnClickListener {
-            deadlineDatePicker.show(fragment.childFragmentManager, "tag")
+            deadlineDatePicker.show(childFragmentManager, "tag")
         }
     }
 
     private fun setupButtonImportance() {
         binding.buttonImportanceMenu.setOnClickListener {
-            val importanceMenu = PopupMenu(activity, it)
+            val importanceMenu = PopupMenu(requireContext(), it)
 
             importanceMenu.menuInflater.inflate(R.menu.importance_menu, importanceMenu.menu)
             importanceMenu.setForceShowIcon(true)
@@ -122,7 +155,7 @@ class TodoEditViewController(
     }
 
     private fun setupExceptionToast() {
-        lifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.exceptionMessage.collect {
                 if (it.isNotEmpty() && it != OK) {
                     showToast(it)
@@ -133,7 +166,7 @@ class TodoEditViewController(
 
     private fun showToast(text: String) {
         Toast.makeText(
-            fragment.context,
+            context,
             text,
             Toast.LENGTH_LONG
         ).show()
@@ -151,17 +184,17 @@ class TodoEditViewController(
 
         if (hasDeadline) {
             binding.buttonDeadlineDate.text = DateUtils
-                .formatDateTime(activity, deadline, DateUtils.FORMAT_SHOW_DATE)
+                .formatDateTime(context, deadline, DateUtils.FORMAT_SHOW_DATE)
         } else {
-            binding.buttonDeadlineDate.text = activity.getString(R.string.select_date)
+            binding.buttonDeadlineDate.text = getString(R.string.select_date)
         }
     }
 
     private fun setImportanceViewContent(importance: Importance) {
         binding.buttonImportanceMenu.text = when (importance) {
-            Importance.LOW -> activity.getString(R.string.low_importance)
-            Importance.NORMAL -> activity.getString(R.string.normal_importance)
-            Importance.HIGH -> activity.getString(R.string.high_importance)
+            Importance.LOW -> getString(R.string.low_importance)
+            Importance.NORMAL -> getString(R.string.normal_importance)
+            Importance.HIGH -> getString(R.string.high_importance)
         }
     }
 
@@ -169,7 +202,7 @@ class TodoEditViewController(
         return MaterialDatePicker.Builder
             .datePicker()
             .setTitleText(
-                activity.getString(R.string.select_deadline_date)
+                getString(R.string.select_deadline_date)
             )
             .setSelection(
                 MaterialDatePicker.todayInUtcMilliseconds()
@@ -180,7 +213,7 @@ class TodoEditViewController(
     private fun navigateToList() {
         val action = TodoEditFragmentDirections
             .actionTodoEditFragmentToTodoListFragment()
-        fragment.findNavController().navigate(action)
+        findNavController().navigate(action)
     }
 
     private suspend fun observeDeadlineDate() {

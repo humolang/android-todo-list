@@ -13,11 +13,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
+import javax.inject.Inject
 
-class TodoItemRepository(
+class TodoItemRepository @Inject constructor(
     private val todoItemDao: TodoItemDao,
     private val todoApi: TodoApi
-    ) {
+    ){
 
     val todoItems: Flow<List<TodoItem>>
         get() = todoItemDao.getObservableList()

@@ -1,34 +1,51 @@
-package com.coriolang.todolist.ui.view.list
+package com.coriolang.todolist.ui.view
 
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.os.Bundle
+import android.view.*
 import android.widget.Toast
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.coriolang.todolist.OK
 import com.coriolang.todolist.R
 import com.coriolang.todolist.databinding.FragmentTodoListBinding
-import com.coriolang.todolist.OK
 import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
-import kotlinx.coroutines.*
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
-class TodoListViewController(
-    private val activity: FragmentActivity,
-    private val fragment: Fragment,
-    private val binding: FragmentTodoListBinding,
-    private val adapter: TodoListAdapter,
-    private val lifecycleOwner: LifecycleOwner,
-    private val viewModel: TodoListViewModel
-    ) {
+@AndroidEntryPoint
+class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
 
-    fun setupViews() {
+    private var _binding: FragmentTodoListBinding? = null
+    private val binding
+        get() = _binding!!
+
+    private val viewModel: TodoListViewModel by activityViewModels()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentTodoListBinding
+            .inflate(inflater, container, false)
+
+        setupViews()
+
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun setupViews() {
         setupMenu()
         setupSwipeRefresh()
         setupRecyclerView()
@@ -37,7 +54,7 @@ class TodoListViewController(
     }
 
     private fun setupMenu() {
-        val menuHost: MenuHost = activity
+        val menuHost: MenuHost = requireActivity()
 
         menuHost.addMenuProvider(object : MenuProvider {
 
@@ -73,7 +90,7 @@ class TodoListViewController(
                 viewModel.clearToken()
                 menuHost.invalidateMenu()
             }
-        }, lifecycleOwner, Lifecycle.State.RESUMED)
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun setupSwipeRefresh() {
@@ -84,12 +101,14 @@ class TodoListViewController(
     }
 
     private fun setupRecyclerView() {
+        val adapter = TodoListAdapter(viewModel)
+
         binding.recyclerViewTodo
             .layoutManager = LinearLayoutManager(activity)
         binding.recyclerViewTodo.adapter = adapter
 
-        lifecycleOwner.lifecycleScope.launch {
-            observeTodoItems()
+        viewLifecycleOwner.lifecycleScope.launch {
+            observeTodoItems(adapter)
         }
     }
 
@@ -100,7 +119,7 @@ class TodoListViewController(
     }
 
     private fun setupExceptionToast() {
-        lifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.exceptionMessage.collect {
                 if (it.isNotEmpty() && it != OK) {
                     showToast(it)
@@ -111,13 +130,13 @@ class TodoListViewController(
 
     private fun showToast(text: String) {
         Toast.makeText(
-            fragment.context,
+            context,
             text,
             Toast.LENGTH_LONG
         ).show()
     }
 
-    private suspend fun observeTodoItems() {
+    private suspend fun observeTodoItems(adapter: TodoListAdapter) {
         viewModel.todoItems.collect {
             adapter.submitList(it)
         }
@@ -126,12 +145,12 @@ class TodoListViewController(
     private fun navigateToLogin() {
         val action = TodoListFragmentDirections
             .actionTodoListFragmentToTodoLoginFragment()
-        fragment.findNavController().navigate(action)
+        findNavController().navigate(action)
     }
 
     private fun navigateToItem() {
         val action = TodoListFragmentDirections
             .actionTodoListFragmentToTodoEditFragment()
-        fragment.findNavController().navigate(action)
+        findNavController().navigate(action)
     }
 }
