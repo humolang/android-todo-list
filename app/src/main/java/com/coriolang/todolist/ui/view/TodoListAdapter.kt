@@ -15,7 +15,8 @@ import com.coriolang.todolist.ui.viewmodels.TodoListViewModel
 
 class TodoListAdapter(
     private val viewModel: TodoListViewModel
-    ) : ListAdapter<TodoItem, TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
+    ) : ListAdapter<TodoItem,
+        TodoListAdapter.TodoItemViewHolder>(DiffCallback) {
 
     class TodoItemViewHolder(
         private val context: Context,

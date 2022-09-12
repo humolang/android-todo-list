@@ -18,7 +18,7 @@ import javax.inject.Inject
 class TodoItemRepository @Inject constructor(
     private val todoItemDao: TodoItemDao,
     private val todoApi: TodoApi
-){
+    ){
 
     val todoItems: Flow<List<TodoItem>>
         get() = todoItemDao.getObservableList()

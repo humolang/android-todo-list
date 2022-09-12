@@ -27,7 +27,6 @@ class TodoApi @Inject constructor(
 
     companion object {
         const val BASE_URL = "https://10.0.2.2:8443"
-
     }
 
     private val client = HttpClient(OkHttp) {

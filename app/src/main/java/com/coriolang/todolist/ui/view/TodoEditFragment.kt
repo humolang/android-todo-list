@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TodoEditFragment : Fragment(R.layout.fragment_todo_edit) {
+
     private var id: String = ""
     companion object {
         private const val ID_KEY = "id"

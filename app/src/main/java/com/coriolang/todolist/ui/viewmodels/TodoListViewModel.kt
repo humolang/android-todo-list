@@ -1,5 +1,6 @@
 package com.coriolang.todolist.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coriolang.todolist.exceptions.RequestException
@@ -47,6 +48,8 @@ class TodoListViewModel @Inject constructor(
     }
 
     fun refreshTodoList() {
+        Log.e("ViewModel", "refreshTodoList()")
+
         viewModelScope.launch(handler) {
             repository.refreshTodoList()
         }
