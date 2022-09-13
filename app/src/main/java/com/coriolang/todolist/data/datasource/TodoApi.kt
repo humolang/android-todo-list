@@ -5,6 +5,7 @@ import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.data.model.User
 import com.coriolang.todolist.exceptions.RequestException
 import com.coriolang.todolist.TOKEN_KEY
+import com.coriolang.todolist.USERNAME_KEY
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
@@ -32,6 +33,12 @@ class TodoApi @Inject constructor(
     private val client = HttpClient(OkHttp) {
         install(HttpCookies)
     }
+
+    private var username: String?
+        get() = sharedPreferences
+            .getString(USERNAME_KEY, "")
+        set(value) = sharedPreferences.edit()
+            .putString(USERNAME_KEY, value).apply()
 
     private var token: String?
         get() = sharedPreferences
@@ -62,6 +69,27 @@ class TodoApi @Inject constructor(
              client.post("$BASE_URL/login") {
                 contentType(ContentType.Application.Json)
                 setBody(jsonUser)
+            }
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            val message = response.bodyAsText()
+            throw RequestException(message)
+        }
+
+        val jsonHashMap = response.body<String>()
+        val hashMap = Json
+            .decodeFromString<HashMap<String, String>>(jsonHashMap)
+
+        username = user.username
+        token = hashMap[TOKEN_KEY] ?: ""
+    }
+
+    suspend fun authorizeRequest() {
+        val response = withContext(Dispatchers.IO) {
+            client.post("$BASE_URL/authorize") {
+                contentType(ContentType.Text.Plain)
+                setBody(username)
             }
         }
 
@@ -230,11 +258,18 @@ class TodoApi @Inject constructor(
 
     private fun checkUnauthorizedStatus(response: HttpResponse) {
         if (response.status == HttpStatusCode.Unauthorized) {
-            token = ""
+            clearUsername()
+            clearToken()
         }
     }
 
-    fun tokenHasExpired() = !token.isNullOrEmpty()
+    fun usernameIsEmpty() = username.isNullOrEmpty()
+
+    fun clearUsername() {
+        username = ""
+    }
+
+    fun tokenHasExpired() = token.isNullOrEmpty()
 
     fun clearToken() {
         token = ""

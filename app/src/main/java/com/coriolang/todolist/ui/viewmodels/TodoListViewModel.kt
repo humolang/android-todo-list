@@ -1,6 +1,5 @@
 package com.coriolang.todolist.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.coriolang.todolist.exceptions.RequestException
@@ -9,6 +8,7 @@ import com.coriolang.todolist.data.model.TodoItem
 import com.coriolang.todolist.data.repository.TodoItemRepository
 import com.coriolang.todolist.OK
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.client.network.sockets.*
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -36,20 +36,23 @@ class TodoListViewModel @Inject constructor(
     val exceptionMessage = _exceptionMessage.asStateFlow()
 
     private val handler = CoroutineExceptionHandler { _, exception ->
-        if (exception is RequestException) {
-            _exceptionMessage.update {
-                exception.message
+        when (exception) {
+            is RequestException ->
+                setExceptionMessage(exception.message)
+            is ConnectTimeoutException -> {
+                val message = "You don't have an internet connection or the server is down."
+                setExceptionMessage(message)
             }
-
-            _exceptionMessage.update { "" }
-        } else {
-            throw exception
+            else -> throw exception
         }
     }
 
-    fun refreshTodoList() {
-        Log.e("ViewModel", "refreshTodoList()")
+    private fun setExceptionMessage(message: String) {
+        _exceptionMessage.update { message }
+        _exceptionMessage.update { "" }
+    }
 
+    fun refreshTodoList() {
         viewModelScope.launch(handler) {
             repository.refreshTodoList()
         }
@@ -119,6 +122,18 @@ class TodoListViewModel @Inject constructor(
             _exceptionMessage.update { OK }
             _exceptionMessage.update { "" }
         }
+    }
+
+    fun authorizeUser() {
+        runBlocking(handler) {
+            repository.authorizeUser()
+        }
+    }
+
+    fun usernameIsEmpty() = repository.usernameIsEmpty()
+
+    fun clearUsername() {
+        repository.clearUsername()
     }
 
     fun tokenHasExpired() = repository.tokenHasExpired()

@@ -11,6 +11,11 @@ class NetworkCallback(
     override fun onAvailable(network: Network) {
         super.onAvailable(network)
 
-        viewModel.refreshTodoList()
+        if (!viewModel.usernameIsEmpty()
+            && !viewModel.tokenHasExpired()) {
+
+            viewModel.authorizeUser()
+            viewModel.refreshTodoList()
+        }
     }
 }

@@ -64,13 +64,14 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
             ) {
                 menuInflater.inflate(R.menu.options_menu, menu)
 
+                val usernameIsEmpty = viewModel.usernameIsEmpty()
                 val tokenHasExpired = viewModel.tokenHasExpired()
 
                 val loginItem = menu.findItem(R.id.option_login)
                 val logoutItem = menu.findItem(R.id.option_logout)
 
-                loginItem.isVisible = !tokenHasExpired
-                logoutItem.isVisible = tokenHasExpired
+                loginItem.isVisible = usernameIsEmpty && tokenHasExpired
+                logoutItem.isVisible = !usernameIsEmpty && !tokenHasExpired
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -87,7 +88,9 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
             }
 
             private fun onLogoutClicked() {
+                viewModel.clearUsername()
                 viewModel.clearToken()
+
                 menuHost.invalidateMenu()
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
@@ -95,7 +98,12 @@ class TodoListFragment : Fragment(R.layout.fragment_todo_list) {
 
     private fun setupSwipeRefresh() {
         binding.swipeRefreshTodo.setOnRefreshListener {
-            viewModel.refreshTodoList()
+            if (!viewModel.usernameIsEmpty()
+                && !viewModel.tokenHasExpired()) {
+
+                viewModel.refreshTodoList()
+            }
+
             binding.swipeRefreshTodo.isRefreshing = false
         }
     }

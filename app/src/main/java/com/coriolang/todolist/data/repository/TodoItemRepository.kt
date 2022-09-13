@@ -18,7 +18,7 @@ import javax.inject.Inject
 class TodoItemRepository @Inject constructor(
     private val todoItemDao: TodoItemDao,
     private val todoApi: TodoApi
-    ){
+    ) {
 
     val todoItems: Flow<List<TodoItem>>
         get() = todoItemDao.getObservableList()
@@ -141,6 +141,16 @@ class TodoItemRepository @Inject constructor(
     suspend fun loginUser(username: String, password: String) {
         val user = User(username, password)
         todoApi.loginRequest(user)
+    }
+
+    suspend fun authorizeUser() {
+        todoApi.authorizeRequest()
+    }
+
+    fun usernameIsEmpty() = todoApi.usernameIsEmpty()
+
+    fun clearUsername() {
+        todoApi.clearUsername()
     }
 
     fun tokenHasExpired() = todoApi.tokenHasExpired()
